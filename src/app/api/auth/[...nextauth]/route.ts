@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { db } from "@/lib/db";
 
 const handler = NextAuth({
   providers: [
@@ -10,11 +12,34 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // TODO: Replace with real DB lookup (Prisma, Mongoose, etc.)
-        if (credentials?.email === "user@example.com" && credentials?.password === "password") {
-          return { id: "1", email: "user@example.com", name: "Demo User" };
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
-        return null;
+
+        const user = await db.user.findUnique({
+          where: {
+            email: credentials.email,
+          },
+        });
+
+        if (!user) {
+          return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name ?? "User",
+        };
       },
     }),
   ],

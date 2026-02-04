@@ -21,14 +21,6 @@ export default function Home() {
             Get Started
             <ArrowRight className="ml-2 w-4 h-4" />
           </Link>
-          <a 
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          >
-            View on GitHub
-          </a>
         </div>
       </div>
     </main>

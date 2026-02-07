@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z }           from "zod";
+import { getServerSession } from "next-auth";
 import { callAI }      from "@/config/aiProviders";
+import { db } from "@/lib/db";
+import { authOptions } from "@/lib/auth";
 
 const schema = z.object({
   experience:     z.string().min(10, "Experience too short"),
@@ -10,10 +13,34 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const body   = await req.json();
-    const parsed = schema.parse(body);          // throws if invalid
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
 
-    const raw    = await callAI(parsed);        // AI call (server-only)
+    const body   = await req.json();
+    const parsed = schema.parse(body);
+
+    // Limit Check
+    const user = await db.user.findUnique({ where: { email: session.user.email } });
+    if (!user) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+
+    const limit = parseInt(process.env.FREE_REMIX_LIMIT || "2", 10);
+    if (!user.isSubscribed && user.remixCount >= limit) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "LIMIT_REACHED", 
+        limit 
+      }, { status: 403 });
+    }
+
+    const raw    = await callAI(parsed);
+    
+    // Increment Count
+    await db.user.update({
+      where: { email: session.user.email },
+      data: { remixCount: { increment: 1 } },
+    });
 
     // Strip markdown code-fences if the model adds them
     const clean  = raw.replace(/```json|```/g, "").trim();
@@ -21,9 +48,6 @@ export async function POST(req: Request) {
     try {
        result = JSON.parse(clean);
     } catch (jsonError) {
-       // if plain text, try to wrap or just return as is in a fallback structure?
-       // The prompt says "Return ONLY valid JSON". If it fails, strictly it's an error from AI.
-       // But let's be robust
        console.error("JSON parse error", jsonError, clean);
        throw new Error("AI returned invalid JSON");
     }

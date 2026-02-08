@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { db } from "@/lib/db";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -15,11 +17,9 @@ export async function POST(req: Request) {
     const { name, email, password } = registerSchema.parse(body);
 
     // Check if user already exists
-    const existingUser = await db.user.findUnique({
-      where: { email },
-    });
+    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-    if (existingUser) {
+    if (existingUser.length > 0) {
       return NextResponse.json(
         { message: "User with this email already exists" },
         { status: 409 }
@@ -30,13 +30,11 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await db.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
+    const [user] = await db.insert(users).values({
+      name,
+      email,
+      password: hashedPassword,
+    }).returning();
 
     // Don't return the password
     const { password: _, ...userWithoutPassword } = user;

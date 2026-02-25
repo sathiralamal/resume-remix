@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { findUserByEmail } from "@/lib/firestore-helpers";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -17,9 +16,9 @@ export async function POST(req: Request) {
     const { name, email, password } = registerSchema.parse(body);
 
     // Check if user already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const existingUser = await findUserByEmail(email);
 
-    if (existingUser.length > 0) {
+    if (existingUser) {
       return NextResponse.json(
         { message: "User with this email already exists" },
         { status: 409 }
@@ -29,24 +28,35 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const [user] = await db.insert(users).values({
+    // Create user in Firestore
+    const now = new Date();
+    const userRef = await db.collection("users").add({
       name,
       email,
       password: hashedPassword,
-    }).returning();
-
-    // Don't return the password
-    const { password: _, ...userWithoutPassword } = user;
+      createdAt: now,
+      updatedAt: now,
+      remixCount: 0,
+      isSubscribed: false,
+      lemonSqueezyCustomerId: null,
+      subscriptionId: null,
+      subscriptionStatus: null,
+      subscriptionPlan: null,
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
+    });
 
     return NextResponse.json(
-      { message: "User registered successfully", user: userWithoutPassword },
+      {
+        message: "User registered successfully",
+        user: { id: userRef.id, name, email },
+      },
       { status: 201 }
     );
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: error.issues[0]?.message ?? "Validation failed" },
+        { message: (error as any).errors[0]?.message ?? "Validation failed" },
         { status: 400 }
       );
     }

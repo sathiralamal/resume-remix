@@ -29,6 +29,7 @@ export function useRemix() {
       setResult(json.data);
     } catch (e: any) {
       setError(e.message);
+      // Return error for caller if needed (requires changing signature, but for now state is enough triggers useEffect)
     } finally {
       setLoading(false);
     }

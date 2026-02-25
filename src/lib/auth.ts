@@ -1,16 +1,14 @@
-import { NextAuthOptions } from "next-auth";
+import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { findUserByEmail } from "@/lib/firestore-helpers";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email:    { label: "Email",    type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -18,7 +16,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const [user] = await db.select().from(users).where(eq(users.email, credentials.email)).limit(1);
+        const user = await findUserByEmail(credentials.email);
 
         if (!user) {
           return null;
@@ -41,9 +39,21 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: { signIn: "/login" },
-  session: {
-    strategy: "jwt",
+  callbacks: {
+    async jwt({ token, user }) {
+      // On initial sign-in, persist the user ID in the JWT
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Expose user ID on the session so client-side can use it
+      if (session.user) {
+        (session.user as any).id = token.id as string;
+      }
+      return session;
+    },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  pages: { signIn: "/login" },
 };

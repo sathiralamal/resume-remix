@@ -1,7 +1,7 @@
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db } from "@/lib/db";
+import { findUserByEmail } from "@/lib/firestore-helpers";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -16,11 +16,7 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        const user = await db.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
+        const user = await findUserByEmail(credentials.email);
 
         if (!user) {
           return null;
@@ -43,5 +39,21 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      // On initial sign-in, persist the user ID in the JWT
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Expose user ID on the session so client-side can use it
+      if (session.user) {
+        (session.user as any).id = token.id as string;
+      }
+      return session;
+    },
+  },
   pages: { signIn: "/login" },
 };

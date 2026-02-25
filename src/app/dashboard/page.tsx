@@ -9,15 +9,13 @@ import RemixButton             from "@/components/dashboard/RemixButton";
 import RemixResult             from "@/components/dashboard/RemixResult";
 import Loader                  from "@/components/shared/Loader";
 import { useRemix }            from "@/hooks/useRemix";
+import Link                    from "next/link";
 
 import UpgradeModal from "@/components/dashboard/UpgradeModal";
+import type { SubscriptionStatus } from "@/types";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
-  
-  // Handled by middleware but good double check
-  if (status === "loading") return <Loader message="Checking session..." />;
-  if (!session)             redirect("/login");
 
   const [experience,     setExperience]     = useState("");
   const [skills,         setSkills]         = useState("");
@@ -25,27 +23,48 @@ export default function Dashboard() {
   
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limit, setLimit] = useState(2);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
 
   const { remix, loading, error, result } = useRemix();
 
-  // Watch for specific error to trigger modal
-  // We need to wrap remix to intercept the error or modify useRemix. 
-  // Let's modify the handleRemix instead to check the error AFTER the hook updates, 
-  // OR strictly, modify useRemix to return the specific error object. 
-  // Easier: simpler approach using useEffect or modifying how useRemix returns error.
-  // BUT useRemix returns string error. Let's assume useRemix sets "LIMIT_REACHED" string.
-  
-  // Actually, let's update handleRemix to custom fetch or update useRemix to return structured error.
-  // For now, let's rely on the string error from useRemix.
-  
+  // Fetch subscription status on mount; verify via LemonSqueezy API after checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const justSubscribed = params.get("subscribed") === "true";
+    let attempts = 0;
+    let timer: NodeJS.Timeout | null = null;
+
+    async function fetchSubscription() {
+      try {
+        // If just back from checkout, ask backend to verify with LemonSqueezy API
+        if (justSubscribed && attempts === 0) {
+          await fetch("/api/subscription/verify", { method: "POST" });
+        }
+
+        const res = await fetch("/api/subscription");
+        if (res.ok) {
+          const data: SubscriptionStatus = await res.json();
+          setSubscription(data);
+          setLimit(data.freeLimit);
+
+          // If webhook/API hasn't confirmed yet, retry a few times
+          if (justSubscribed && !data.isSubscribed && attempts < 5) {
+            attempts++;
+            timer = setTimeout(fetchSubscription, 3000);
+            return;
+          }
+        }
+      } catch {
+        // Non-critical
+      }
+    }
+    fetchSubscription();
+
+    return () => { if (timer) clearTimeout(timer); };
+  }, []);
+
   const handleRemix = async () => {
     if (!experience || !jobDescription) return;
-    
-    // We can't easily catch the error here because useRemix handles it internally and sets state.
-    // However, we can check the result of the hook if we change useRemix to return a promise.
-    // Let's modify useRemix.ts to return the response data/error.
-    // For now, let's just assume we will check `error` state in a useEffect.
-    
     await remix({ experience, skills, jobDescription });
   };
   
@@ -55,6 +74,10 @@ export default function Dashboard() {
          setShowUpgrade(true);
      }
   }, [error]);
+
+  // Early returns AFTER all hooks
+  if (status === "loading") return <Loader message="Checking session..." />;
+  if (!session)             redirect("/login");
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -70,6 +93,21 @@ export default function Dashboard() {
             Resume Remix AI
           </h1>
           <div className="flex items-center gap-4">
+             {/* Subscription Badge */}
+             {subscription && (
+               subscription.isSubscribed ? (
+                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                   ✨ Pro
+                 </span>
+               ) : (
+                 <Link
+                   href="/upgrade"
+                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                 >
+                   Free · {subscription.remainingFreeRemixes}/{subscription.freeLimit} left
+                 </Link>
+               )
+             )}
              <span className="text-sm text-gray-600 hidden sm:block">Hello, {session.user?.name || "User"}</span>
              <button 
                onClick={() => signOut({ callbackUrl: "/login" })}
@@ -96,7 +134,7 @@ export default function Dashboard() {
 
         {loading && <Loader message="AI is tailoring your resume..." />}
         
-        {error && (
+        {error && error !== "LIMIT_REACHED" && (
           <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-md">
             Error: {error}
           </div>

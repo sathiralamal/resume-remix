@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { findUserByEmail } from "@/lib/firestore-helpers";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -15,9 +16,7 @@ export async function POST(req: Request) {
     const { name, email, password } = registerSchema.parse(body);
 
     // Check if user already exists
-    const existingUser = await db.user.findUnique({
-      where: { email },
-    });
+    const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
       return NextResponse.json(
@@ -29,20 +28,29 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const user = await db.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
+    // Create user in Firestore
+    const now = new Date();
+    const userRef = await db.collection("users").add({
+      name,
+      email,
+      password: hashedPassword,
+      createdAt: now,
+      updatedAt: now,
+      remixCount: 0,
+      isSubscribed: false,
+      lemonSqueezyCustomerId: null,
+      subscriptionId: null,
+      subscriptionStatus: null,
+      subscriptionPlan: null,
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
     });
 
-    // Don't return the password
-    const { password: _, ...userWithoutPassword } = user;
-
     return NextResponse.json(
-      { message: "User registered successfully", user: userWithoutPassword },
+      {
+        message: "User registered successfully",
+        user: { id: userRef.id, name, email },
+      },
       { status: 201 }
     );
   } catch (error: any) {

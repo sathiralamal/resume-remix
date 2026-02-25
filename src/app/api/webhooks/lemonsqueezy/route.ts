@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
+import { findUserByEmail, findUserById } from "@/lib/firestore-helpers";
 
+/**
+ * POST /api/webhooks/lemonsqueezy
+ * Handles LemonSqueezy webhook events for subscription lifecycle.
+ *
+ * Events handled:
+ * - subscription_created / subscription_updated / subscription_resumed
+ * - subscription_cancelled
+ * - subscription_expired / subscription_paused
+ */
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
@@ -9,74 +19,142 @@ export async function POST(req: Request) {
     const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
     if (!secret || !signature) {
-      return NextResponse.json({ error: "Missing secret or signature" }, { status: 400 });
+      console.error("Webhook: Missing secret or signature");
+      return NextResponse.json(
+        { error: "Missing secret or signature" },
+        { status: 400 }
+      );
     }
 
-    // Verify Signature
+    // Verify HMAC-SHA256 signature
     const hmac = crypto.createHmac("sha256", secret);
     const digest = Buffer.from(hmac.update(rawBody).digest("hex"), "utf8");
     const signatureBuffer = Buffer.from(signature, "utf8");
 
-    if (!crypto.timingSafeEqual(digest, signatureBuffer)) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    if (
+      digest.length !== signatureBuffer.length ||
+      !crypto.timingSafeEqual(digest, signatureBuffer)
+    ) {
+      console.error("Webhook: Invalid signature");
+      return NextResponse.json(
+        { error: "Invalid signature" },
+        { status: 401 }
+      );
     }
 
     const payload = JSON.parse(rawBody);
-    const eventName = payload.meta.event_name;
+    const eventName: string = payload.meta.event_name;
     const body = payload.data;
+    const attributes = body.attributes;
 
-    // We assume the custom_data or email is passed to link to user.
-    // Ideally pass user ID in custom data during checkout.
-    // For now, let's try to match by email if available in attributes.
-    const email = body.attributes.user_email; 
-    
-    // Better: Use custom data "userId" if we passed it in checkout.
-    // But since we didn't implement checkout creation with custom info, 
-    // let's rely on email for this simple flow.
-    
-    if (!email) {
-       console.error("No email found in webhook payload");
-       return NextResponse.json({ received: true });
+    console.log(`[LemonSqueezy Webhook] Event: ${eventName}`);
+
+    // --- Resolve user ---
+    // Prefer custom_data.user_id (set during checkout), fall back to email
+    const customData = payload.meta.custom_data || attributes.custom_data;
+    const userId = customData?.user_id;
+    const email = attributes.user_email;
+
+    let user = null;
+
+    if (userId) {
+      user = await findUserById(userId);
     }
-    
-    const user = await db.user.findUnique({ where: { email } });
+
+    if (!user && email) {
+      user = await findUserByEmail(email);
+    }
+
     if (!user) {
-        console.error(`User not found for email: ${email}`);
-        return NextResponse.json({ received: true }); // Acknowledge anyway
+      console.error(
+        `Webhook: User not found. userId=${userId}, email=${email}`
+      );
+      // Still acknowledge to avoid retries
+      return NextResponse.json({ received: true });
     }
+
+    // --- Handle events ---
+    const subscriptionId = body.id?.toString();
+    const customerId = attributes.customer_id?.toString();
+    const status: string = attributes.status; // "active", "cancelled", "expired", "paused", etc.
+    const renewsAt = attributes.renews_at
+      ? new Date(attributes.renews_at)
+      : null;
+    const endsAt = attributes.ends_at ? new Date(attributes.ends_at) : null;
+
+    const userRef = db.collection("users").doc(user.id);
 
     switch (eventName) {
       case "subscription_created":
       case "subscription_updated":
-      case "subscription_resumed":
-        if (body.attributes.status === "active") {
-          await db.user.update({
-            where: { email },
-            data: { 
-              isSubscribed: true,
-              lemonSqueezyCustomerId: body.attributes.customer_id.toString(),
-              subscriptionId: body.id.toString()
-            },
-          });
-        }
-        break;
+      case "subscription_resumed": {
+        const isActive = status === "active";
 
-      case "subscription_cancelled":
-      case "subscription_expired":
-        await db.user.update({
-          where: { email },
-          data: { isSubscribed: false },
+        await userRef.update({
+          isSubscribed: isActive,
+          subscriptionStatus: status,
+          subscriptionPlan: "pro",
+          lemonSqueezyCustomerId: customerId,
+          subscriptionId: subscriptionId,
+          currentPeriodEnd: renewsAt || endsAt,
+          cancelAtPeriodEnd: false,
+          updatedAt: new Date(),
         });
+
+        console.log(
+          `[Webhook] ${eventName}: user=${user.id}, status=${status}, isActive=${isActive}`
+        );
         break;
-        
-       case "order_created": 
-         // If one-time payment logic needed
-         break;
+      }
+
+      case "subscription_cancelled": {
+        // Cancelled = still active until period end
+        await userRef.update({
+          subscriptionStatus: "cancelled",
+          cancelAtPeriodEnd: true,
+          // Keep isSubscribed true until period actually ends
+          isSubscribed: true,
+          currentPeriodEnd: endsAt || renewsAt,
+          updatedAt: new Date(),
+        });
+
+        console.log(
+          `[Webhook] subscription_cancelled: user=${user.id}, endsAt=${endsAt}`
+        );
+        break;
+      }
+
+      case "subscription_expired":
+      case "subscription_paused": {
+        await userRef.update({
+          isSubscribed: false,
+          subscriptionStatus: status,
+          cancelAtPeriodEnd: false,
+          updatedAt: new Date(),
+        });
+
+        console.log(
+          `[Webhook] ${eventName}: user=${user.id}, access revoked`
+        );
+        break;
+      }
+
+      case "order_created": {
+        // Log for one-time payments if needed in the future
+        console.log(`[Webhook] order_created: user=${user.id}`);
+        break;
+      }
+
+      default:
+        console.log(`[Webhook] Unhandled event: ${eventName}`);
     }
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error("Webhook error:", error.message);
-    return NextResponse.json({ error: "Server Error" }, { status: 500 });
+    console.error("Webhook processing error:", error.message);
+    return NextResponse.json(
+      { error: "Server Error" },
+      { status: 500 }
+    );
   }
 }

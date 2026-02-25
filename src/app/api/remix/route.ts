@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { callAI }      from "@/config/aiProviders";
 import { db } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
+import { findUserByEmail } from "@/lib/firestore-helpers";
+import { FieldValue } from "firebase-admin/firestore";
 
 const schema = z.object({
   experience:     z.string().min(10, "Experience too short"),
@@ -22,7 +24,7 @@ export async function POST(req: Request) {
     const parsed = schema.parse(body);
 
     // Limit Check
-    const user = await db.user.findUnique({ where: { email: session.user.email } });
+    const user = await findUserByEmail(session.user.email);
     if (!user) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
 
     const limit = parseInt(process.env.FREE_REMIX_LIMIT || "2", 10);
@@ -36,10 +38,10 @@ export async function POST(req: Request) {
 
     const raw    = await callAI(parsed);
     
-    // Increment Count
-    await db.user.update({
-      where: { email: session.user.email },
-      data: { remixCount: { increment: 1 } },
+    // Increment Count using Firestore FieldValue.increment
+    await db.collection("users").doc(user.id).update({
+      remixCount: FieldValue.increment(1),
+      updatedAt: new Date(),
     });
 
     // Strip markdown code-fences if the model adds them

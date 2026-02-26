@@ -42,7 +42,7 @@ async function callGemini(prompt: string): Promise<string> {
 async function callOpenAI(prompt: string): Promise<string> {
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const res = await client.chat.completions.create({
-    model:    "gpt-4o",
+    model:    process.env.OPENAI_MODEL ?? "gpt-4o",
     messages: [{ role: "user", content: prompt }],
   });
   return res.choices[0]?.message?.content ?? "";
@@ -52,7 +52,7 @@ async function callOpenAI(prompt: string): Promise<string> {
 async function callAnthropic(prompt: string): Promise<string> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const res = await client.messages.create({
-    model:      "claude-3-5-sonnet-20240620", // Updated model name as per recent Anthropic changes or stick to prompt's recommendation
+    model:      process.env.ANTHROPIC_MODEL ?? "claude-3-5-sonnet-20240620", // Updated model name as per recent Anthropic changes or stick to prompt's recommendation
     max_tokens: 2048,
     messages:   [{ role: "user", content: prompt }],
   });

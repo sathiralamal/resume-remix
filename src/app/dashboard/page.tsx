@@ -8,6 +8,7 @@ import JobDescriptionForm      from "@/components/dashboard/JobDescriptionForm";
 import RemixButton             from "@/components/dashboard/RemixButton";
 import RemixResult             from "@/components/dashboard/RemixResult";
 import Loader                  from "@/components/shared/Loader";
+import ThemeToggle             from "@/components/shared/ThemeToggle";
 import { useRemix }            from "@/hooks/useRemix";
 import Link                    from "next/link";
 
@@ -80,14 +81,14 @@ export default function Dashboard() {
   if (!session)             redirect("/login");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors">
       <UpgradeModal 
         isOpen={showUpgrade} 
         onClose={() => setShowUpgrade(false)} 
         limit={limit} 
       />
       
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+      <header className="bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-800/50 sticky top-0 z-10 transition-colors">
         <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
             Resume Remix AI
@@ -102,16 +103,17 @@ export default function Dashboard() {
                ) : (
                  <Link
                    href="/upgrade"
-                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                  >
                    Free · {subscription.remainingFreeRemixes}/{subscription.freeLimit} left
                  </Link>
                )
              )}
-             <span className="text-sm text-gray-600 hidden sm:block">Hello, {session.user?.name || "User"}</span>
+             <ThemeToggle />
+             <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">Hello, {session.user?.name || "User"}</span>
              <button 
                onClick={() => signOut({ callbackUrl: "/login" })}
-               className="text-sm text-gray-500 hover:text-red-500 transition-colors"
+               className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
              >
                Logout
              </button>
@@ -135,7 +137,7 @@ export default function Dashboard() {
         {loading && <Loader message="AI is tailoring your resume..." />}
         
         {error && error !== "LIMIT_REACHED" && (
-          <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-md">
+          <div className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-md">
             Error: {error}
           </div>
         )}

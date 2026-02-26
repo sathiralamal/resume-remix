@@ -10,7 +10,7 @@ export default function RemixButton({ onClick, disabled }: RemixButtonProps) {
       disabled={disabled}
       className={`w-full py-3 px-4 text-white font-bold rounded-lg transition-colors
         ${disabled 
-          ? "bg-gray-400 cursor-not-allowed" 
+          ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" 
           : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md transform hover:scale-[1.01] transition-transform"
         }`}
     >

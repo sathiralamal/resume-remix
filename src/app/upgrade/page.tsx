@@ -58,21 +58,21 @@ export default function UpgradePage() {
   // Already subscribed view
   if (!loadingSub && subscription?.isSubscribed) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-lg w-full space-y-6 bg-white p-10 rounded-xl shadow-xl border border-gray-100 text-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors">
+        <div className="max-w-lg w-full space-y-6 bg-white dark:bg-gray-900 p-10 rounded-xl shadow-xl dark:shadow-gray-800/50 border border-gray-100 dark:border-gray-800 text-center transition-colors">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto">
             <Crown className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">
-            You&apos;re on <span className="text-blue-600">Pro</span>!
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            You&apos;re on <span className="text-blue-600 dark:text-blue-400">Pro</span>!
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             You have unlimited access to AI-powered resume remixing.
           </p>
 
           {subscription.cancelAtPeriodEnd && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-amber-700 text-sm">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <p className="text-amber-700 dark:text-amber-300 text-sm">
                 Your subscription is set to cancel at the end of the current period
                 {subscription.currentPeriodEnd && (
                   <> on <strong>{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</strong></>
@@ -83,14 +83,14 @@ export default function UpgradePage() {
           )}
 
           {subscription.currentPeriodEnd && !subscription.cancelAtPeriodEnd && (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 dark:text-gray-500">
               Renews on {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
             </p>
           )}
 
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
@@ -101,13 +101,13 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="max-w-lg w-full space-y-8 bg-white p-10 rounded-xl shadow-xl border border-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors">
+      <div className="max-w-lg w-full space-y-8 bg-white dark:bg-gray-900 p-10 rounded-xl shadow-xl dark:shadow-gray-800/50 border border-gray-100 dark:border-gray-800 transition-colors">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">
-            Upgrade to <span className="text-blue-600">Pro</span>
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+            Upgrade to <span className="text-blue-600 dark:text-blue-400">Pro</span>
           </h2>
-          <p className="mt-2 text-gray-500">
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
             Supercharge your career with unlimited AI resumes.
           </p>
         </div>
@@ -117,31 +117,31 @@ export default function UpgradePage() {
             <div className="flex-shrink-0">
               <Check className="h-6 w-6 text-green-500" />
             </div>
-            <p className="text-lg text-gray-700">Unlimited Resumes</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300">Unlimited Resumes</p>
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
               <Check className="h-6 w-6 text-green-500" />
             </div>
-            <p className="text-lg text-gray-700">Advanced AI Models</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300">Advanced AI Models</p>
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
               <Check className="h-6 w-6 text-green-500" />
             </div>
-            <p className="text-lg text-gray-700">Priority Support</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300">Priority Support</p>
           </div>
         </div>
 
         <div className="mt-8">
-          <div className="flex items-center justify-center text-5xl font-extrabold text-gray-900">
+          <div className="flex items-center justify-center text-5xl font-extrabold text-gray-900 dark:text-white">
             $19
-            <span className="ml-2 text-xl font-medium text-gray-500 self-end mb-2">/month</span>
+            <span className="ml-2 text-xl font-medium text-gray-500 dark:text-gray-400 self-end mb-2">/month</span>
           </div>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 border border-red-200 rounded-md text-sm">
+          <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-md text-sm">
             {error}
           </div>
         )}
@@ -149,7 +149,7 @@ export default function UpgradePage() {
         <button
           onClick={handleBuy}
           disabled={loading || loadingSub}
-          className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
@@ -162,7 +162,7 @@ export default function UpgradePage() {
         </button>
 
         <div className="text-center mt-4">
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">
+          <Link href="/dashboard" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
             Back to Dashboard
           </Link>
         </div>

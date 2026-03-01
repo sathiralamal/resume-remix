@@ -77,9 +77,7 @@ export default function Dashboard() {
   if (!session)             redirect("/login");
 
   return (
-    <div className="min-h-screen flex flex-col pb-20 relative">
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
-      
+    <div className="min-h-screen flex flex-col pb-20 relative bg-background">
       <UpgradeModal 
         isOpen={showUpgrade} 
         onClose={() => setShowUpgrade(false)} 

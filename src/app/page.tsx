@@ -1,80 +1,118 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Target, Zap, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Soft decorative background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center space-y-10">
-        
-        {/* Badge */}
-        <div className="animate-fade-in-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-sm font-medium text-muted-foreground backdrop-blur-sm">
-          <Sparkles className="w-4 h-4" />
-          <span>Intelligent Resume Tailoring</span>
-        </div>
-
-        {/* Hero Copy */}
-        <div className="space-y-6">
-          <h1 className="animate-fade-in-up delay-100 text-5xl md:text-7xl font-semibold tracking-tight text-foreground leading-[1.1]">
-            Transform your resume for <br className="hidden md:block"/>
-            <span className="text-muted-foreground/80 relative inline-block">
-              every application.
-              <div className="absolute bottom-1 left-0 w-full h-3 bg-primary/10 -z-10 rounded-sm" />
-            </span>
+    <main className="w-full flex flex-col min-h-screen">
+      {/* 1. Hero / Header Band */}
+      <section className="hero-header w-full flex flex-col">
+        <div className="max-w-4xl mx-auto w-full z-10 flex flex-col animate-fade-in-up">
+          <h1 className="text-[2.5rem] sm:text-5xl font-bold tracking-tight mb-6 leading-[1.15]">
+            Intelligent Resume Tailoring <br className="hidden sm:block"/>
+            for Every Application
           </h1>
-          
-          <p className="animate-fade-in-up delay-200 text-lg md:text-xl font-normal text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-primary-foreground/90 max-w-2xl font-normal leading-relaxed">
             Stop guessing keywords. Resume Remxi uses precision AI to adapt your existing experience directly to the job description, helping you land more interviews.
           </p>
-        </div>
-
-        {/* Calls to Action */}
-        <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
-          <Link 
-            href="/login"
-            className="group btn-hover btn-active inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-primary-foreground bg-primary rounded-xl shadow-sm transition-all"
-          >
-            Start Tailoring
-            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link 
-            href="/register"
-            className="group btn-hover inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-foreground bg-card border border-border rounded-xl soft-shadow transition-all"
-          >
-            Create Account
-          </Link>
-        </div>
-
-
-        {/* Hero Image / Mockup Showcase */}
-        <div className="animate-fade-in-up delay-500 w-full max-w-5xl mx-auto mt-16 sm:mt-24 relative perspective-[2000px]">
-          <div className="relative flex justify-center items-center h-[350px] sm:h-[450px] md:h-[550px]">
-            {/* Background Image Room */}
-            <div className="absolute w-[100%] sm:w-[65%] aspect-[4/3] rounded-2xl border border-border/50 bg-card/60 shadow-2xl backdrop-blur-md transform -rotate-6 translate-x-[-15%] sm:-translate-x-20 overflow-hidden transition-all duration-700 hover:rotate-0 hover:translate-x-0 hover:z-20 cursor-pointer group">
-               {/* Replace this section with your first <Image /> */}
-               <div className="w-full h-full bg-gradient-to-br from-muted/50 to-muted/10 flex flex-col items-center justify-center text-muted-foreground/50 border-dashed border-2 border-muted/60 m-4 rounded-xl max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] transition-colors group-hover:border-muted-foreground/30">
-                <span className="text-xs mt-1 text-muted-foreground/40">
-                <img src="/assets/image1.jpg" alt="" />
-                </span>
-               </div>
-            </div>
-            
-            {/* Foreground Image Room */}
-            <div className="absolute z-10 w-[85%] sm:w-[70%] aspect-[4/3] rounded-2xl border border-border/60 bg-background shadow-2xl transform rotate-3 translate-x-[15%] sm:translate-x-20 translate-y-8 overflow-hidden transition-all duration-700 hover:rotate-0 hover:translate-x-0 hover:translate-y-4 cursor-pointer group">
-               {/* Replace this section with your second <Image /> */}
-               <div className="w-full h-full bg-gradient-to-tl from-primary/5 to-transparent flex flex-col items-center justify-center text-primary/60 border-dashed border-2 border-primary/20 m-4 rounded-xl max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] transition-colors group-hover:border-primary/40">
-           
-                <span className="text-xs mt-1 text-primary/40">
-                <img src="/assets/image2.jpg" alt="" />
-                </span>
-               </div>
-            </div>
+          <div className="mt-10">
+            <Link 
+              href="/login"
+              className="inline-flex items-center justify-center px-8 py-3.5 text-[17px] font-bold text-primary bg-card rounded-[8px] btn-hover shadow-sm"
+            >
+              Start Tailoring Now
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
           </div>
         </div>
+      </section>
 
-      </div>
+      {/* 2. Intro / Context Section */}
+      <section className="content-section w-full border-b border-border">
+        <div className="max-w-3xl mx-auto w-full flex flex-col items-start text-foreground">
+          <h2 className="text-[30px] font-bold mb-6 text-foreground tracking-tight">Why Tailor Your Resume?</h2>
+          <p className="text-[17px] mb-6 text-foreground leading-[1.65]">
+            Modern applicant tracking systems (ATS) filter out highly qualified candidates simply because they lack specific keywords. <strong>Customizing your resume</strong> for each job application dramatically increases your chances of passing the initial screen and <strong>getting an interview</strong>.
+          </p>
+          <p className="text-[17px] text-foreground leading-[1.65] mb-12">
+            Resume Remxi automates this tedious process. Provide your base experience and the target job description, and our AI will <strong>highlight the most relevant skills</strong> and rewrite bullet points to align perfectly with the employer's expectations.
+          </p>
+          
+          {/* 3. Icon-Card Row List */}
+          <div className="w-full flex flex-col gap-8 md:gap-10">
+            
+            {/* Card 1 */}
+            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 bg-card rounded-xl soft-shadow border border-border/50 animate-fade-in-up delay-100">
+              <div className="icon-block" style={{ backgroundColor: 'var(--color-icon-blue)' }}>
+                 <FileText className="w-8 h-8" style={{ color: 'hsl(213, 80%, 45%)' }} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[22px] font-bold mb-2">Upload Your Base Profile</h3>
+                <p className="text-[17px] text-foreground/80 leading-[1.65] m-0">
+                  Start by providing your standard resume. The system uses this as a baseline, ensuring <strong>no false information is generated</strong>.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 bg-card rounded-xl soft-shadow border border-border/50 animate-fade-in-up delay-200">
+              <div className="icon-block" style={{ backgroundColor: 'var(--color-icon-pink)' }}>
+                 <Target className="w-8 h-8" style={{ color: 'hsl(340, 70%, 45%)' }} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[22px] font-bold mb-2">Target the Job Description</h3>
+                <p className="text-[17px] text-foreground/80 leading-[1.65] m-0">
+                  Paste the specific job listing you want. The AI analyzes it to extract <strong>critical keywords and requirements</strong>.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 bg-card rounded-xl soft-shadow border border-border/50 animate-fade-in-up delay-300">
+              <div className="icon-block" style={{ backgroundColor: 'var(--color-icon-green)' }}>
+                 <Zap className="w-8 h-8" style={{ color: 'hsl(160, 55%, 40%)' }} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[22px] font-bold mb-2">Instant Re-generation</h3>
+                <p className="text-[17px] text-foreground/80 leading-[1.65] m-0">
+                  Within seconds, receive a <strong>perfectly tailored resume</strong> emphasizing the exact skills the employer is seeking.
+                </p>
+              </div>
+            </div>
+            
+            {/* Card 4 */}
+            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center p-4 bg-card rounded-xl soft-shadow border border-border/50 animate-fade-in-up delay-400">
+              <div className="icon-block" style={{ backgroundColor: 'var(--color-icon-peach)' }}>
+                 <ShieldCheck className="w-8 h-8" style={{ color: 'hsl(25, 80%, 45%)' }} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[22px] font-bold mb-2">Enterprise-Grade Security</h3>
+                <p className="text-[17px] text-foreground/80 leading-[1.65] m-0">
+                  Your data is safe. We use NextAuth for authentication and securely process your information using exactly the AI providers you select.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Closing Copy + CTA */}
+      <section className="bg-background max-w-3xl mx-auto w-full px-6 sm:px-12 py-16 flex flex-col items-start sm:items-center sm:text-center animate-fade-in-up delay-400">
+        <h3 className="text-[30px] font-bold tracking-tight mb-4">Ready to stand out?</h3>
+        <p className="text-[17px] text-foreground/80 mb-8 max-w-lg leading-[1.65]">
+          Join professionals who are landing more interviews by perfectly matching their resumes to job expectations.
+        </p>
+        <Link 
+          href="/register"
+          className="btn-hover inline-flex items-center justify-center px-8 py-3.5 text-[17px] font-bold text-primary-foreground bg-primary rounded-[8px] w-full sm:w-auto text-center"
+        >
+          Create Free Account
+        </Link>
+        <p className="mt-8 text-[15px] text-muted-foreground w-full sm:w-auto text-center">
+          Already have an account? <Link href="/login" className="text-primary font-bold hover:underline underline-offset-4">Log in</Link>
+        </p>
+      </section>
+      
     </main>
   );
 }

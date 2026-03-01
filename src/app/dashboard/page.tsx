@@ -11,7 +11,7 @@ import Loader                  from "@/components/shared/Loader";
 import ThemeToggle             from "@/components/shared/ThemeToggle";
 import { useRemix }            from "@/hooks/useRemix";
 import Link                    from "next/link";
-import { LogOut, Zap }         from "lucide-react";
+import { LogOut, Zap, User }         from "lucide-react";
 
 import UpgradeModal from "@/components/dashboard/UpgradeModal";
 import type { SubscriptionStatus } from "@/types";
@@ -113,9 +113,14 @@ export default function Dashboard() {
              
              <ThemeToggle />
              
-             <span className="text-sm font-medium hidden sm:block text-muted-foreground ml-2">
+             <Link 
+               href="/profile" 
+               className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-2 px-3 py-1.5 rounded-full hover:bg-muted"
+               title="View Profile"
+             >
+               <User className="w-4 h-4" />
                {session.user?.name || "Guest"}
-             </span>
+             </Link>
              
              <button 
                onClick={() => signOut({ callbackUrl: "/login" })}

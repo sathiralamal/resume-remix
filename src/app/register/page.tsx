@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Loader from "@/components/shared/Loader";
+import { UserPlus } from "lucide-react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -40,62 +40,77 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-900 rounded shadow-md dark:shadow-gray-800/50 transition-colors">
-        <h2 className="text-2xl font-bold text-center dark:text-white">Create Account</h2>
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block mb-1 text-sm font-medium dark:text-gray-300">Name</label>
+    <div className="flex items-center justify-center min-h-screen bg-transparent relative p-4 overflow-hidden">
+      {/* Abstract Background Graphic */}
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+
+      <div className="w-full max-w-md p-8 sm:p-10 glass-panel rounded-2xl relative z-10 animate-fade-in-up backdrop-blur-xl">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
+            <UserPlus className="w-6 h-6" />
+          </div>
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">Create an account</h2>
+          <p className="text-sm text-muted-foreground mt-2">Get started with AI resume tailoring</p>
+        </div>
+
+        <form onSubmit={handleRegister} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
-              className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
             />
           </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium dark:text-gray-300">Email</label>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@example.com"
-              className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
+              placeholder="name@example.com"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
             />
           </div>
-          <div>
-            <label className="block mb-1 text-sm font-medium dark:text-gray-300">Password</label>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 6 characters"
-              className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
+              placeholder="Min. 6 characters"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
               minLength={6}
             />
           </div>
 
-          {error && <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100 font-medium animate-fade-in-up">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 text-white bg-green-600 rounded hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 disabled:opacity-50 transition-colors"
+            className="w-full py-3.5 mt-2 flex justify-center items-center text-primary-foreground bg-primary rounded-xl font-medium btn-hover btn-active transition-all disabled:opacity-50"
           >
-            {loading ? "Creating Account..." : "Register"}
+            {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-8 pt-6 border-t border-border/50 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
-            Login here
+          <Link href="/login" className="text-foreground font-medium hover:text-primary transition-colors">
+            Sign in
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Check, Loader2, ArrowLeft, Crown } from "lucide-react";
+import { Check, Loader2, ArrowLeft, Zap, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { SubscriptionStatus } from "@/types";
 
@@ -58,42 +58,44 @@ export default function UpgradePage() {
   // Already subscribed view
   if (!loadingSub && subscription?.isSubscribed) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors">
-        <div className="max-w-lg w-full space-y-6 bg-white dark:bg-gray-900 p-10 rounded-xl shadow-xl dark:shadow-gray-800/50 border border-gray-100 dark:border-gray-800 text-center transition-colors">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto">
-            <Crown className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-transparent relative p-6 overflow-hidden flex items-center justify-center">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+        
+        <div className="relative z-10 max-w-lg w-full glass-panel rounded-3xl p-10 text-center animate-fade-in-up soft-shadow">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary mb-8 shadow-sm">
+            <Zap className="h-10 w-10 fill-primary" />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-            You&apos;re on <span className="text-blue-600 dark:text-blue-400">Pro</span>!
+          
+          <h2 className="text-3xl font-semibold mb-3 tracking-tight">
+            Pro Active
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
-            You have unlimited access to AI-powered resume remixing.
+          <p className="text-muted-foreground mb-8">
+            You currently have unlimited tailoring access.
           </p>
 
           {subscription.cancelAtPeriodEnd && (
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-              <p className="text-amber-700 dark:text-amber-300 text-sm">
-                Your subscription is set to cancel at the end of the current period
+            <div className="p-4 bg-orange-50 text-orange-800 rounded-xl mb-8 text-sm">
+              <p>
+                Subscription cancelled. Access remains until{" "}
                 {subscription.currentPeriodEnd && (
-                  <> on <strong>{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</strong></>
-                )}
-                .
+                  <strong>{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</strong>
+                )}.
               </p>
             </div>
           )}
 
           {subscription.currentPeriodEnd && !subscription.cancelAtPeriodEnd && (
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+            <div className="mb-8 text-sm text-muted-foreground">
               Renews on {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-            </p>
+            </div>
           )}
 
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-primary-foreground font-medium rounded-xl btn-hover btn-active transition-all"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            <ArrowLeft className="h-5 w-5" />
+            Return to Dashboard
           </Link>
         </div>
       </div>
@@ -101,47 +103,46 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors">
-      <div className="max-w-lg w-full space-y-8 bg-white dark:bg-gray-900 p-10 rounded-xl shadow-xl dark:shadow-gray-800/50 border border-gray-100 dark:border-gray-800 transition-colors">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-            Upgrade to <span className="text-blue-600 dark:text-blue-400">Pro</span>
+    <div className="min-h-screen bg-transparent relative p-6 overflow-hidden flex items-center justify-center">
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-lg w-full glass-panel rounded-3xl p-8 md:p-10 animate-fade-in-up soft-shadow">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-6 shadow-sm">
+            <Sparkles className="h-8 w-8" />
+          </div>
+          <h2 className="text-3xl font-semibold tracking-tight mb-3">
+            Upgrade to Pro
           </h2>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">
-            Supercharge your career with unlimited AI resumes.
+          <p className="text-muted-foreground">
+            Get unlimited resume tailoring and priority AI processing.
           </p>
         </div>
 
-        <div className="mt-8 space-y-6">
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              <Check className="h-6 w-6 text-green-500" />
-            </div>
-            <p className="text-lg text-gray-700 dark:text-gray-300">Unlimited Resumes</p>
+        <div className="space-y-4 mb-10">
+          <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
+            <Check className="h-5 w-5 text-primary mr-4" />
+            <p className="text-[15px] font-medium text-foreground">Unlimited Tailoring Sessions</p>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              <Check className="h-6 w-6 text-green-500" />
-            </div>
-            <p className="text-lg text-gray-700 dark:text-gray-300">Advanced AI Models</p>
+          <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
+            <Check className="h-5 w-5 text-primary mr-4" />
+            <p className="text-[15px] font-medium text-foreground">Advanced AI Processing</p>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              <Check className="h-6 w-6 text-green-500" />
-            </div>
-            <p className="text-lg text-gray-700 dark:text-gray-300">Priority Support</p>
+          <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
+            <Check className="h-5 w-5 text-primary mr-4" />
+            <p className="text-[15px] font-medium text-foreground">Priority Bandwidth</p>
           </div>
         </div>
 
-        <div className="mt-8">
-          <div className="flex items-center justify-center text-5xl font-extrabold text-gray-900 dark:text-white">
-            $19
-            <span className="ml-2 text-xl font-medium text-gray-500 dark:text-gray-400 self-end mb-2">/month</span>
+        <div className="mb-10 text-center">
+          <div className="text-5xl font-semibold tracking-tight text-foreground">
+            $19<span className="text-xl text-muted-foreground font-normal">/mo</span>
           </div>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-md text-sm">
+          <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm mb-6 border border-red-100 flex items-center justify-center animate-fade-in-up">
             {error}
           </div>
         )}
@@ -149,21 +150,21 @@ export default function UpgradePage() {
         <button
           onClick={handleBuy}
           disabled={loading || loadingSub}
-          className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex justify-center flex-row gap-2 items-center w-full py-4 bg-primary text-primary-foreground font-medium rounded-xl btn-hover btn-active transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
         >
           {loading ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              Creating checkout...
+              Processing...
             </>
           ) : (
-            "Subscribe Now"
+            "Upgrade Now"
           )}
         </button>
 
-        <div className="text-center mt-4">
-          <Link href="/dashboard" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
-            Back to Dashboard
+        <div className="text-center mt-6">
+          <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
+            Cancel and return
           </Link>
         </div>
       </div>

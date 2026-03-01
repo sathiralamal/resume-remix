@@ -1,3 +1,5 @@
+import { Sparkles } from "lucide-react";
+
 interface RemixButtonProps {
   onClick: () => void;
   disabled: boolean;
@@ -8,13 +10,14 @@ export default function RemixButton({ onClick, disabled }: RemixButtonProps) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full py-3 px-4 text-white font-bold rounded-lg transition-colors
+      className={`w-full py-4 px-6 rounded-xl font-medium text-lg flex items-center justify-center gap-2 transition-all 
         ${disabled 
-          ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed" 
-          : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md transform hover:scale-[1.01] transition-transform"
+          ? "bg-muted text-muted-foreground cursor-not-allowed opacity-60" 
+          : "bg-primary text-primary-foreground btn-hover btn-active soft-shadow hover:shadow-primary/20"
         }`}
     >
-      {disabled ? "Remixing..." : "✨ Remix My Resume"}
+      <Sparkles className="w-5 h-5" />
+      {disabled ? "Readying Engine..." : "Tailor Resume"}
     </button>
   );
 }

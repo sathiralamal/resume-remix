@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AlertCircle } from "lucide-react";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -12,26 +13,32 @@ export default function UpgradeModal({ isOpen, onClose, limit }: UpgradeModalPro
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl dark:shadow-gray-800/50 p-8 max-w-md w-full mx-4 text-center transform transition-all scale-100">
-        <div className="mb-4 text-4xl">🚀</div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Limit Reached</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          You've used all {limit} of your free remixes. Upgrade to Pro for unlimited AI-powered resumes.
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-fade-in-up">
+      <div className="glass-panel p-8 max-w-md w-full rounded-2xl relative bg-card">
+        <div className="mb-6 flex justify-center">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+        </div>
         
-        <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-center mb-2 tracking-tight">Usage Limit Reached</h2>
+        
+        <div className="text-center text-muted-foreground text-sm mb-8 leading-relaxed">
+          You've reached your free limit of {limit} tailoring sessions. Upgrade to Pro for unlimited access and priority processing.
+        </div>
+        
+        <div className="space-y-3">
           <Link
             href="/upgrade"
-            className="block w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+            className="flex items-center justify-center w-full py-3.5 bg-primary text-primary-foreground font-medium rounded-xl btn-hover btn-active transition-all"
           >
-             Unlock Unlimited Access
+             Upgrade to Pro
           </Link>
           <button
             onClick={onClose}
-            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium transition-colors"
+            className="w-full py-3.5 text-foreground font-medium rounded-xl border border-border/50 hover:bg-muted transition-colors"
           >
-            Maybe later
+            Not right now
           </button>
         </div>
       </div>

@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-primary",
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Resume Remxi",
-  description: "AI-powered resume tailoring",
+  description: "AI-powered resume tailoring. Clean, quiet, precise.",
 };
 
 export default function RootLayout({
@@ -17,11 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${plusJakarta.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
+             __html: `
               (function() {
                 try {
                   var theme = localStorage.getItem('theme');
@@ -33,10 +37,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={`${plusJakarta.className} antialiased bg-background text-foreground transition-colors duration-300 min-h-screen selection:bg-muted selection:text-foreground relative`}>
+        {/* Soft background mesh gradient base layer */}
+        <div className="fixed inset-0 z-[-1] pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/50 via-background to-background" />
         <ThemeProvider>
           <AuthProvider>
-            {children}
+             {children}
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -5,13 +5,13 @@ interface SkillsFormProps {
 
 export default function SkillsForm({ value, onChange }: SkillsFormProps) {
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Your Skills
+    <div className="space-y-2 animate-fade-in-up delay-200">
+      <label className="block text-sm font-medium text-foreground">
+        Core Competencies
       </label>
       <textarea
-        className="w-full h-24 p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
-        placeholder="List your key skills here..."
+        className="w-full h-24 p-4 clean-input rounded-xl text-foreground placeholder-muted-foreground resize-none leading-relaxed"
+        placeholder="Enter your key skills (e.g., React, Node.js, Project Management)..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

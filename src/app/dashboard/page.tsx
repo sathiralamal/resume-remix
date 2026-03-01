@@ -11,6 +11,7 @@ import Loader                  from "@/components/shared/Loader";
 import ThemeToggle             from "@/components/shared/ThemeToggle";
 import { useRemix }            from "@/hooks/useRemix";
 import Link                    from "next/link";
+import { LogOut, Zap }         from "lucide-react";
 
 import UpgradeModal from "@/components/dashboard/UpgradeModal";
 import type { SubscriptionStatus } from "@/types";
@@ -28,7 +29,6 @@ export default function Dashboard() {
 
   const { remix, loading, error, result } = useRemix();
 
-  // Fetch subscription status on mount; verify via LemonSqueezy API after checkout
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const justSubscribed = params.get("subscribed") === "true";
@@ -37,7 +37,6 @@ export default function Dashboard() {
 
     async function fetchSubscription() {
       try {
-        // If just back from checkout, ask backend to verify with LemonSqueezy API
         if (justSubscribed && attempts === 0) {
           await fetch("/api/subscription/verify", { method: "POST" });
         }
@@ -48,7 +47,6 @@ export default function Dashboard() {
           setSubscription(data);
           setLimit(data.freeLimit);
 
-          // If webhook/API hasn't confirmed yet, retry a few times
           if (justSubscribed && !data.isSubscribed && attempts < 5) {
             attempts++;
             timer = setTimeout(fetchSubscription, 3000);
@@ -69,76 +67,98 @@ export default function Dashboard() {
     await remix({ experience, skills, jobDescription });
   };
   
-  // Effect to watch for limit error
   useEffect(() => {
      if (error === "LIMIT_REACHED" || error?.includes("LIMIT_REACHED")) {
          setShowUpgrade(true);
      }
   }, [error]);
 
-  // Early returns AFTER all hooks
-  if (status === "loading") return <Loader message="Checking session..." />;
+  if (status === "loading") return <Loader message="Authenticating..." />;
   if (!session)             redirect("/login");
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors">
+    <div className="min-h-screen flex flex-col pb-20 relative">
+      <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
+      
       <UpgradeModal 
         isOpen={showUpgrade} 
         onClose={() => setShowUpgrade(false)} 
         limit={limit} 
       />
       
-      <header className="bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-800/50 sticky top-0 z-10 transition-colors">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-            Resume Remix AI
-          </h1>
-          <div className="flex items-center gap-4">
-             {/* Subscription Badge */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border transition-colors">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-semibold tracking-tight hover:opacity-80 transition-opacity">
+            Resume Remxi
+          </Link>
+
+          <div className="flex items-center gap-3">
              {subscription && (
                subscription.isSubscribed ? (
-                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                   ✨ Pro
+                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-primary/10 text-primary rounded-full group">
+                   <Zap className="w-3.5 h-3.5 fill-primary" />
+                   PRO
                  </span>
                ) : (
                  <Link
                    href="/upgrade"
-                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
                  >
-                   Free · {subscription.remainingFreeRemixes}/{subscription.freeLimit} left
+                   Free: {subscription.remainingFreeRemixes}/{subscription.freeLimit}
                  </Link>
                )
              )}
+             
+             <div className="h-4 w-px bg-border mx-2 hidden sm:block"></div>
+             
              <ThemeToggle />
-             <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">Hello, {session.user?.name || "User"}</span>
+             
+             <span className="text-sm font-medium hidden sm:block text-muted-foreground ml-2">
+               {session.user?.name || "Guest"}
+             </span>
+             
              <button 
                onClick={() => signOut({ callbackUrl: "/login" })}
-               className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+               className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors ml-1"
+               title="Sign out"
              >
-               Logout
+               <LogOut className="w-4 h-4" />
              </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-8 w-full space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <main className="flex-1 max-w-6xl mx-auto px-6 py-12 w-full space-y-12">
+        {/* Title area */}
+        <div className="space-y-3 animate-fade-in-up">
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">Tailor your resume</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl">Adapt your experience to precisely match the target role requirements.</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 animate-fade-in-up delay-100">
           <ExperienceForm     value={experience}     onChange={setExperience} />
-          <div className="space-y-6">
+          <div className="space-y-8 lg:space-y-12 h-full flex flex-col">
             <JobDescriptionForm value={jobDescription} onChange={setJobDescription} />
             <SkillsForm         value={skills}         onChange={setSkills} />
+            <div className="pt-4 mt-auto">
+              <RemixButton onClick={handleRemix} disabled={loading || !experience || !jobDescription} />
+            </div>
           </div>
         </div>
 
-        <div className="pt-4">
-          <RemixButton onClick={handleRemix} disabled={loading || !experience || !jobDescription} />
-        </div>
-
-        {loading && <Loader message="AI is tailoring your resume..." />}
+        {loading && (
+          <div className="py-12">
+            <Loader message="Analyzing job requirements and tailoring experience..." />
+          </div>
+        )}
         
         {error && error !== "LIMIT_REACHED" && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-md">
-            Error: {error}
+          <div className="p-4 bg-red-50 border border-red-100 text-red-800 rounded-xl flex items-start gap-3 mt-8 animate-fade-in-up">
+            ⚠️
+            <div>
+              <div className="font-semibold mb-1">Error During Processing</div>
+              <div className="text-sm opacity-90">{error}</div>
+            </div>
           </div>
         )}
 

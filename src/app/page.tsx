@@ -47,6 +47,33 @@ export default function Home() {
           </Link>
         </div>
 
+
+        {/* Hero Image / Mockup Showcase */}
+        <div className="animate-fade-in-up delay-500 w-full max-w-5xl mx-auto mt-16 sm:mt-24 relative perspective-[2000px]">
+          <div className="relative flex justify-center items-center h-[350px] sm:h-[450px] md:h-[550px]">
+            {/* Background Image Room */}
+            <div className="absolute w-[100%] sm:w-[65%] aspect-[4/3] rounded-2xl border border-border/50 bg-card/60 shadow-2xl backdrop-blur-md transform -rotate-6 translate-x-[-15%] sm:-translate-x-20 overflow-hidden transition-all duration-700 hover:rotate-0 hover:translate-x-0 hover:z-20 cursor-pointer group">
+               {/* Replace this section with your first <Image /> */}
+               <div className="w-full h-full bg-gradient-to-br from-muted/50 to-muted/10 flex flex-col items-center justify-center text-muted-foreground/50 border-dashed border-2 border-muted/60 m-4 rounded-xl max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] transition-colors group-hover:border-muted-foreground/30">
+                <span className="text-xs mt-1 text-muted-foreground/40">
+                <img src="/assets/image1.jpg" alt="" />
+                </span>
+               </div>
+            </div>
+            
+            {/* Foreground Image Room */}
+            <div className="absolute z-10 w-[85%] sm:w-[70%] aspect-[4/3] rounded-2xl border border-border/60 bg-background shadow-2xl transform rotate-3 translate-x-[15%] sm:translate-x-20 translate-y-8 overflow-hidden transition-all duration-700 hover:rotate-0 hover:translate-x-0 hover:translate-y-4 cursor-pointer group">
+               {/* Replace this section with your second <Image /> */}
+               <div className="w-full h-full bg-gradient-to-tl from-primary/5 to-transparent flex flex-col items-center justify-center text-primary/60 border-dashed border-2 border-primary/20 m-4 rounded-xl max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] transition-colors group-hover:border-primary/40">
+           
+                <span className="text-xs mt-1 text-primary/40">
+                <img src="/assets/image2.jpg" alt="" />
+                </span>
+               </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   );

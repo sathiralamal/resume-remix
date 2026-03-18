@@ -1,12 +1,13 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { redirect }            from "next/navigation";
-import { useState, useEffect }            from "react";
+import { useState, useEffect, useRef }            from "react";
 import ExperienceForm          from "@/components/dashboard/ExperienceForm";
 import SkillsForm              from "@/components/dashboard/SkillsForm";
 import JobDescriptionForm      from "@/components/dashboard/JobDescriptionForm";
 import RemixButton             from "@/components/dashboard/RemixButton";
 import RemixResult             from "@/components/dashboard/RemixResult";
+import KeywordMapper           from "@/components/dashboard/KeywordMapper";
 import Loader                  from "@/components/shared/Loader";
 import ThemeToggle             from "@/components/shared/ThemeToggle";
 import { useRemix }            from "@/hooks/useRemix";
@@ -22,7 +23,25 @@ export default function Dashboard() {
   const [experience,     setExperience]     = useState("");
   const [skills,         setSkills]         = useState("");
   const [jobDescription, setJobDescription] = useState("");
-  
+
+  // Debounced values for keyword mapper (avoids recomputing on every keystroke)
+  const [debouncedExp, setDebouncedExp] = useState("");
+  const [debouncedJD,  setDebouncedJD]  = useState("");
+  const [debouncedSkills, setDebouncedSkills] = useState("");
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedExp(experience);
+      setDebouncedJD(jobDescription);
+      setDebouncedSkills(skills);
+    }, 600);
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, [experience, jobDescription, skills]);
+
+  const showKeywordMapper = debouncedExp.length > 80 && debouncedJD.length > 80;
+
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [limit, setLimit] = useState(2);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
@@ -150,6 +169,14 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {showKeywordMapper && (
+          <KeywordMapper
+            experience={debouncedExp}
+            jobDescription={debouncedJD}
+            skills={debouncedSkills}
+          />
+        )}
 
         {loading && (
           <div className="py-12">

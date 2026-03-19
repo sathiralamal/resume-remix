@@ -41,7 +41,7 @@ export default function RemixResult({ data }: RemixResultProps) {
           <Lightbulb className="w-4 h-4 text-yellow-500" />
           Strategic Advisory
         </h3>
-        <div className="bg-primary/5 p-6 rounded-xl border border-primary/10 text-primary-foreground leading-relaxed whitespace-pre-wrap text-[15px] shadow-sm">
+        <div className="bg-primary/5 p-6 rounded-xl border border-primary/10 text-foreground leading-relaxed whitespace-pre-wrap text-[15px] shadow-sm">
           {data.tips}
         </div>
       </div>

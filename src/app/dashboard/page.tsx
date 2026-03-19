@@ -215,14 +215,7 @@ export default function Dashboard() {
         )}
 
         {result && <RemixResult data={result} />}
-        {/* <RemixResult
-          data={{
-            remixedExperience:
-              "Your optimized experience description will appear here.",
-            remixedSkills: "Your aligned skills will appear here.",
-            tips: "Your strategic advice will appear here.",
-          }}
-        /> */}
+      
       </main>
     </div>
   );

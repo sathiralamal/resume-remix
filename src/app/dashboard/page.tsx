@@ -190,14 +190,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {showKeywordMapper && (
-          <KeywordMapper
-            experience={debouncedExp}
-            jobDescription={debouncedJD}
-            skills={debouncedSkills}
-          />
-        )}
-
         {loading && (
           <div className="py-12">
             <Loader message="Analyzing job requirements and tailoring experience..." />

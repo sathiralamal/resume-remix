@@ -20,7 +20,7 @@ export default function Home() {
       {/* TOP-RIGHT — card bleeding off the top-right corner */}
       <div className="hidden lg:block absolute -top-10 -right-10 xl:-right-4 w-[100px] xl:w-[560px] h-[55vh] rounded-3xl overflow-hidden shadow-2xl border border-border/30 cursor-pointer group -rotate-20 z-10">
         <img
-          src="/assets/image2.png"
+          src="/assets/image2.jpg"
           alt="Resume showcase"
           className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
         />
@@ -28,9 +28,9 @@ export default function Home() {
       </div>
 
       {/* BOTTOM-RIGHT — card bleeding off the bottom-right edge */}
-      <div className="hidden lg:block absolute -bottom-10 -right-10 xl:-right-4 w-[480px] xl:w-[340px] h-[50vh] rounded-3xl overflow-hidden shadow-2xl border border-border/30 cursor-pointer group rotate-2 z-10">
+      <div className="hidden lg:block absolute -bottom-10 -right-10 xl:-right-4 w-[480px] xl:w-[340px] h-[50vh] rounded-3xl overflow-hidden shadow-2xl border border-border/30 cursor-pointer group rotate-20 z-10">
         <img
-          src="/assets/image1.jpg"
+          src="/assets/image3.jpg"
           alt="Resume showcase"
           className="w-full h-full object-cover object-bottom transition-transform duration-700 ease-out group-hover:scale-105"
         />

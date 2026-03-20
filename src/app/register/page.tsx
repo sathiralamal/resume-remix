@@ -40,14 +40,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background relative p-4 overflow-hidden">
-      <div className="w-full max-w-md p-8 sm:p-10 glass-panel border border-border rounded-2xl relative z-10 animate-fade-in-up">
+    <div className="flex items-center justify-center min-h-screen bg-transparent relative p-4 overflow-hidden">
+      {/* Abstract Background Graphic */}
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+
+      <div className="w-full max-w-md p-8 sm:p-10 glass-panel rounded-2xl relative z-10 animate-fade-in-up backdrop-blur-xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-primary-foreground mb-4 shadow-sm">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
             <UserPlus className="w-6 h-6" />
           </div>
           <h2 className="text-3xl font-semibold tracking-tight text-foreground">Create an account</h2>
-          <p className="text-sm text-foreground/70 mt-2">Get started with AI resume tailoring</p>
+          <p className="text-sm text-muted-foreground mt-2">Get started with AI resume tailoring</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-5">
@@ -58,7 +62,7 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your Name"
-              className="w-full px-4 py-3 clean-input rounded-[8px] text-foreground placeholder-muted-foreground"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
             />
           </div>
@@ -69,7 +73,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full px-4 py-3 clean-input rounded-[8px] text-foreground placeholder-muted-foreground"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
             />
           </div>
@@ -80,7 +84,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min. 6 characters"
-              className="w-full px-4 py-3 clean-input rounded-[8px] text-foreground placeholder-muted-foreground"
+              className="w-full px-4 py-3 clean-input rounded-xl text-foreground placeholder-muted-foreground"
               required
               minLength={6}
             />
@@ -95,7 +99,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 mt-2 flex justify-center items-center text-primary-foreground bg-primary rounded-[8px] font-medium btn-hover btn-active transition-all disabled:opacity-50"
+            className="w-full py-3.5 mt-2 flex justify-center items-center text-primary-foreground bg-primary rounded-xl font-medium btn-hover btn-active transition-all disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Sign up"}
           </button>
@@ -103,7 +107,7 @@ export default function RegisterPage() {
 
         <div className="mt-8 pt-6 border-t border-border/50 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary font-medium hover:underline transition-colors">
+          <Link href="/login" className="text-foreground font-medium hover:text-primary transition-colors">
             Sign in
           </Link>
         </div>

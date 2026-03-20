@@ -38,6 +38,8 @@ export default function RootLayout({
         />
       </head>
       <body className={`${plusJakarta.className} antialiased bg-background text-foreground transition-colors duration-300 min-h-screen selection:bg-muted selection:text-foreground relative`}>
+        {/* Soft background mesh gradient base layer */}
+        <div className="fixed inset-0 z-[-1] pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-muted/50 via-background to-background" />
         <ThemeProvider>
           <AuthProvider>
              {children}

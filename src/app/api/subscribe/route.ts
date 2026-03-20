@@ -13,26 +13,25 @@ export async function POST() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      console.log("Calling /api/subscribe");
+      console.log(session);
+
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log("Calling findUserByEmail");
     const user = await findUserByEmail(session.user.email);
+    console.log(user);
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // If already subscribed, don't create a new checkout
     if (user.isSubscribed) {
       return NextResponse.json(
         { error: "Already subscribed", isSubscribed: true },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,13 +41,14 @@ export async function POST() {
       userName: user.name || undefined,
     });
 
+    console.log("generate checkout url");
     const checkoutUrl = checkout.data?.data?.attributes?.url;
 
     if (!checkoutUrl) {
       console.error("Checkout creation failed:", checkout);
       return NextResponse.json(
         { error: "Failed to create checkout session" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -57,7 +57,7 @@ export async function POST() {
     console.error("Subscribe error:", error.message);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

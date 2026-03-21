@@ -1,10 +1,27 @@
-import { withAuth } from "next-auth/middleware";
+import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// export default withAuth; // simpler if no options needed
-export default withAuth({
-  pages: {
-    signIn: "/login",
-  },
-});
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req });
+  const { pathname } = req.nextUrl;
 
-export const config = { matcher: ["/dashboard"] };
+  // Authenticated users visiting public pages → redirect to dashboard
+  if (
+    token &&
+    (pathname === "/" || pathname === "/login" || pathname === "/register")
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Unauthenticated users trying to access dashboard → redirect to login
+  if (!token && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/", "/dashboard/:path*", "/login", "/register"],
+};

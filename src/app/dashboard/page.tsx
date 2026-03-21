@@ -119,6 +119,27 @@ export default function Dashboard() {
           >
             Resume Remxi
           </Link>
+          <nav className="hidden md:flex items-center gap-6">
+            <Link
+              href="/how-to"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              How It Works
+            </Link>
+
+            <Link
+              href="/contact"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Contact
+            </Link>
+            <Link
+              href="/privacy-policy"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy
+            </Link>
+          </nav>
 
           <div className="flex items-center gap-3">
             {subscription &&
@@ -215,7 +236,6 @@ export default function Dashboard() {
         )}
 
         {result && <RemixResult data={result} />}
-      
       </main>
     </div>
   );

@@ -35,7 +35,7 @@ export interface RemixResult {
   tips:              string;
 }
 
-export type AIProvider = "gemini" | "openai" | "anthropic";
+export type AIProvider = "gemini" | "openai" | "anthropic" | "groq";
 
 export interface SubscriptionStatus {
   isSubscribed: boolean;

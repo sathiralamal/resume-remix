@@ -15,21 +15,21 @@ const steps = [
     icon: FileText,
     title: "Paste Your Experience",
     description:
-      "Copy your current resume bullet points, work history, or a summary of your experience into the experience box. The more detail you include, the better the tailoring.",
+      "Copy your current resume bullet points, work history, or a summary of your experience into the experience box. Add you main experince with less word but add relevant keywords, the better the tailoring. The maximum character limit is 1200 characters, which is roughly 150-200 words.",
   },
   {
     number: "2",
     icon: Briefcase,
     title: "Add the Job Description",
     description:
-      "Paste the full job posting you're applying for. Resume Remxi analyzes the required skills, keywords, and responsibilities to understand exactly what the employer is looking for.",
+      "Paste the full job posting you're applying for. Please consider the character limit , try to add responsbility section of job description for better result.Resume Remxi analyzes the required skills, keywords, and responsibilities to understand exactly what the employer is looking for.",
   },
   {
     number: "3",
     icon: Sparkles,
-    title: "Add Your Skills (Optional)",
+    title: "Add Your Skills ",
     description:
-      "List any additional skills, tools, or technologies you have. This helps the AI surface relevant competencies that might not be obvious from your experience alone.",
+      "List core skills, tools, or technologies you have. This helps the AI surface relevant competencies that might not be obvious from your experience alone.",
   },
   {
     number: "4",

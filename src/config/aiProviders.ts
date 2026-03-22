@@ -1,13 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import OpenAI                  from "openai";
-import Anthropic               from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { buildPrompt } from "../utils/promptBuilder";
+import { log } from "console";
+import { groqConfig, sanitizeForGroq } from "./groqConfig";
 
-export type AIProvider = "gemini" | "openai" | "anthropic";
+export type AIProvider = "gemini" | "openai" | "anthropic" | "groq";
 
 interface RemixInput {
   experience: string;
-  skills:     string;
+  skills: string;
   jobDescription: string;
 }
 
@@ -18,12 +21,17 @@ export async function callAI(input: RemixInput): Promise<string> {
   const provider: AIProvider =
     (process.env.AI_PROVIDER as AIProvider) ?? "gemini";
 
-  const prompt = buildPrompt(input);          // see promptBuilder.ts
+  const prompt = buildPrompt(input); // see promptBuilder.ts
 
   switch (provider) {
-    case "gemini":    return callGemini(prompt);
-    case "openai":    return callOpenAI(prompt);
-    case "anthropic": return callAnthropic(prompt);
+    case "gemini":
+      return callGemini(prompt);
+    case "openai":
+      return callOpenAI(prompt);
+    case "anthropic":
+      return callAnthropic(prompt);
+    case "groq":
+      return callGroq(prompt);
     default:
       throw new Error(`Unsupported AI provider: ${provider}`);
   }
@@ -32,7 +40,9 @@ export async function callAI(input: RemixInput): Promise<string> {
 /* ──── Gemini ──── */
 async function callGemini(prompt: string): Promise<string> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL ?? "gemini-1.5-pro" });
+  const model = genAI.getGenerativeModel({
+    model: process.env.GEMINI_MODEL ?? "gemini-1.5-pro",
+  });
   const result = await model.generateContent(prompt);
   const response = await result.response;
   return response.text() ?? "";
@@ -42,9 +52,28 @@ async function callGemini(prompt: string): Promise<string> {
 async function callOpenAI(prompt: string): Promise<string> {
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const res = await client.chat.completions.create({
-    model:    process.env.OPENAI_MODEL ?? "gpt-4o",
+    model: process.env.OPENAI_MODEL ?? "gpt-4o",
     messages: [{ role: "user", content: prompt }],
   });
+  return res.choices[0]?.message?.content ?? "";
+}
+
+/* ──── Groq ──── */
+async function callGroq(prompt: string): Promise<string> {
+  console.log("callGroq with prompt:", prompt);
+
+  const client = new Groq({ apiKey: groqConfig.apiKey });
+  const res = await client.chat.completions.create({
+    model: groqConfig.model,
+    messages: [{ role: "user", content: sanitizeForGroq(prompt) }],
+    temperature: groqConfig.temperature,
+    max_completion_tokens: groqConfig.maxCompletionTokens,
+    top_p: groqConfig.topP,
+  });
+  console.log("Groq response");
+  console.log(res);
+  console.log("===============");
+
   return res.choices[0]?.message?.content ?? "";
 }
 
@@ -52,9 +81,9 @@ async function callOpenAI(prompt: string): Promise<string> {
 async function callAnthropic(prompt: string): Promise<string> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const res = await client.messages.create({
-    model:      process.env.ANTHROPIC_MODEL ?? "claude-3-5-sonnet-20240620", // Updated model name as per recent Anthropic changes or stick to prompt's recommendation
+    model: process.env.ANTHROPIC_MODEL ?? "claude-3-5-sonnet-20240620", // Updated model name as per recent Anthropic changes or stick to prompt's recommendation
     max_tokens: 2048,
-    messages:   [{ role: "user", content: prompt }],
+    messages: [{ role: "user", content: prompt }],
   });
   const block = res.content[0];
   return block.type === "text" ? block.text : "";

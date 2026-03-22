@@ -88,9 +88,47 @@ export default function Dashboard() {
   }, []);
 
   const handleRemix = async () => {
-    if (!experience || !jobDescription) return;
+    if (!experience || !jobDescription || !handleTextLimit()) return;
     await remix({ experience, skills, jobDescription });
   };
+
+  const handleTextLimit = () => {
+    let exprienceLimit = 0;
+    let jobDescLimit = 0;
+    let skillsLimit = 0;
+
+    switch (process.env.AI_PROVIDER) {
+      case "groq":
+        exprienceLimit = 1399;
+        jobDescLimit = 2500;
+        skillsLimit = 120;
+        break;
+      default:
+        exprienceLimit = 1399;
+        jobDescLimit = 2500;
+        skillsLimit = 120;
+    }
+
+    if (experience.length > exprienceLimit) {
+      alert(
+        `Experience exceeds the limit of ${exprienceLimit} characters for the selected AI provider. Please shorten it.`,
+      );
+      return false;
+    }
+    if (jobDescription.length > jobDescLimit) {
+      alert(
+        `Job description exceeds the limit of ${jobDescLimit} characters for the selected AI provider. Please shorten it.`,
+      );
+      return false;
+    }
+    if (skills.length > skillsLimit) {
+      alert(
+        `Skills input exceeds the limit of ${skillsLimit} characters for the selected AI provider. Please shorten it.`,
+      );
+      return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (error === "LIMIT_REACHED" || error?.includes("LIMIT_REACHED")) {

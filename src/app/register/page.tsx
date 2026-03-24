@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -52,6 +53,14 @@ export default function RegisterPage() {
           </div>
           <h2 className="text-3xl font-semibold tracking-tight text-foreground">Create an account</h2>
           <p className="text-sm text-muted-foreground mt-2">Get started with AI resume tailoring</p>
+        </div>
+
+        <GoogleSignInButton label="Sign up with Google" />
+
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-border/60" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <div className="flex-1 h-px bg-border/60" />
         </div>
 
         <form onSubmit={handleRegister} className="space-y-5">

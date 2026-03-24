@@ -33,6 +33,13 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    if (!user.password) {
+      return NextResponse.json(
+        { error: "Password login is not available for this account" },
+        { status: 400 }
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(

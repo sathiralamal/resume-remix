@@ -18,24 +18,29 @@ declare module "next-auth/jwt" {
 }
 
 export interface User {
-  id:    string;
+  id: string;
   email: string;
-  name:  string;
+  name: string;
 }
 
 export interface RemixInput {
-  experience:     string;
-  skills:         string;
+  experience: string;
+  skills: string;
   jobDescription: string;
 }
 
 export interface RemixResult {
   remixedExperience: string;
-  remixedSkills:     string;
-  tips:              string;
+  remixedSkills: string;
+  tips: string;
 }
 
-export type AIProvider = "gemini" | "openai" | "anthropic" | "groq";
+export type AIProvider =
+  | "gemini"
+  | "openai"
+  | "anthropic"
+  | "groq"
+  | "openrouter";
 
 export interface SubscriptionStatus {
   isSubscribed: boolean;

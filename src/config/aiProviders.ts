@@ -2,11 +2,17 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import Groq from "groq-sdk";
+import { OpenRouter } from "@openrouter/sdk";
 import { buildPrompt } from "../utils/promptBuilder";
-import { log } from "console";
 import { groqConfig, sanitizeForGroq } from "./groqConfig";
+import { openRouterConfig } from "./openRouterConfig";
 
-export type AIProvider = "gemini" | "openai" | "anthropic" | "groq";
+export type AIProvider =
+  | "gemini"
+  | "openai"
+  | "anthropic"
+  | "groq"
+  | "openrouter";
 
 interface RemixInput {
   experience: string;
@@ -19,7 +25,9 @@ interface RemixInput {
  */
 export async function callAI(input: RemixInput): Promise<string> {
   const provider: AIProvider =
-    (process.env.AI_PROVIDER as AIProvider) ?? "gemini";
+    (process.env.NEXT_PUBLIC_AI_PROVIDER as AIProvider) ??
+    (process.env.AI_PROVIDER as AIProvider) ??
+    "gemini";
 
   const prompt = buildPrompt(input); // see promptBuilder.ts
 
@@ -32,6 +40,8 @@ export async function callAI(input: RemixInput): Promise<string> {
       return callAnthropic(prompt);
     case "groq":
       return callGroq(prompt);
+    case "openrouter":
+      return callOpenRouter(prompt);
     default:
       throw new Error(`Unsupported AI provider: ${provider}`);
   }
@@ -87,4 +97,55 @@ async function callAnthropic(prompt: string): Promise<string> {
   });
   const block = res.content[0];
   return block.type === "text" ? block.text : "";
+}
+
+/* ──── OpenRouter ──── */
+async function callOpenRouter(prompt: string): Promise<string> {
+  const client = new OpenRouter({
+    apiKey: openRouterConfig.apiKey,
+    httpReferer: openRouterConfig.siteUrl || undefined,
+    appTitle: openRouterConfig.appTitle || undefined,
+  });
+
+  const completion = await client.chat.send({
+    chatRequest: {
+      model: openRouterConfig.model,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    },
+  });
+
+  if (completion instanceof ReadableStream || !("choices" in completion)) {
+    throw new Error("Expected a non-streaming response");
+  }
+
+  const choice = completion.choices[0];
+  const content = choice?.message?.content;
+
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (
+          item &&
+          typeof item === "object" &&
+          "text" in item &&
+          typeof item.text === "string"
+        ) {
+          return item.text;
+        }
+        return "";
+      })
+      .join("");
+  }
+
+  return "";
 }

@@ -96,17 +96,21 @@ export default function Dashboard() {
     let exprienceLimit = 0;
     let jobDescLimit = 0;
     let skillsLimit = 0;
-
-    switch (process.env.AI_PROVIDER) {
+    switch (process.env.NEXT_PUBLIC_AI_PROVIDER) {
       case "groq":
         exprienceLimit = 1399;
         jobDescLimit = 2500;
         skillsLimit = 120;
         break;
+      case "openrouter":
+        exprienceLimit = 4000;
+        jobDescLimit = 5000;
+        skillsLimit = 500;
+        break;
       default:
-        exprienceLimit = 1399;
-        jobDescLimit = 2500;
-        skillsLimit = 120;
+        exprienceLimit = 4000;
+        jobDescLimit = 5000;
+        skillsLimit = 500;
     }
 
     if (experience.length > exprienceLimit) {
@@ -128,7 +132,7 @@ export default function Dashboard() {
       return false;
     }
     return true;
-  }
+  };
 
   useEffect(() => {
     if (error === "LIMIT_REACHED" || error?.includes("LIMIT_REACHED")) {

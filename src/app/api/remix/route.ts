@@ -89,14 +89,10 @@ export async function POST(req: Request) {
         const fixed = content
           .replace(/\r?\n/g, "\\n") // convert real line breaks → \n
           .replace(/\t/g, "\\t"); // optional: fix tabs too
-          .replace(/\r?\n/g, "\\n")
-          .replace(/\t/g, "\\t");
         return `: "${fixed}"`;
       })
       .trim();
 
-      .trim();
-    let result;
     let result: Record<string, unknown>;
     try {
       result = JSON.parse(clean);

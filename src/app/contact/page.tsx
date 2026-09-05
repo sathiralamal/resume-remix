@@ -31,10 +31,10 @@ export default function ContactPage() {
             <div>
               <div className="font-medium text-foreground mb-1">Email</div>
               <a
-                href="mailto:hello@resumeremxi.com"
+                href="mailto:arcadeaceace@gmail.com"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                hello@resumeremxi.com
+                arcadeaceace@gmail.com
               </a>
             </div>
           </div>

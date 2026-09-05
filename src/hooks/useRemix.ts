@@ -3,14 +3,14 @@ import { RemixResult } from "../types";
 
 interface RemixInput {
   experience: string;
-  skills:     string;
+  skills: string;
   jobDescription: string;
 }
 
 export function useRemix() {
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState<string | null>(null);
-  const [result,   setResult]   = useState<RemixResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<RemixResult | null>(null);
 
   const remix = useCallback(async (input: RemixInput) => {
     setLoading(true);
@@ -18,18 +18,13 @@ export function useRemix() {
     setResult(null);
 
     try {
-      const res  = await fetch("/api/remix", {
-        method:  "POST",
+      const res = await fetch("/api/remix", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(input),
+        body: JSON.stringify(input),
       });
       const json = await res.json();
 
-      if (!json.success) throw new Error(json.error);
-      setResult(json.data);
-    } catch (e: any) {
-      setError(e.message);
-      // Return error for caller if needed (requires changing signature, but for now state is enough triggers useEffect)
       if (!json.success) {
         // Propagate guardrail violation code so dashboard can show specific UI
         if (json.guardrailViolation) {

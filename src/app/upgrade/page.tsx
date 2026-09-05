@@ -14,6 +14,7 @@ export default function UpgradePage() {
     null,
   );
   const [loadingSub, setLoadingSub] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Fetch current subscription status
   useEffect(() => {
@@ -56,7 +57,6 @@ export default function UpgradePage() {
       setLoading(false);
     }
   };
-
 
   // Already subscribed view
   if (!loadingSub && subscription?.isSubscribed) {
@@ -165,9 +165,58 @@ export default function UpgradePage() {
           </div>
         )}
 
+        {/* Terms & Conditions checkbox */}
+        <label className="flex items-start gap-3 mb-6 cursor-pointer group">
+          <div className="relative mt-0.5 flex-shrink-0">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-5 h-5 rounded border-2 border-border bg-background/50 peer-checked:bg-primary peer-checked:border-primary transition-all flex items-center justify-center">
+              {termsAccepted && (
+                <svg
+                  className="w-3 h-3 text-primary-foreground"
+                  fill="none"
+                  viewBox="0 0 12 12"
+                >
+                  <path
+                    d="M2 6l3 3 5-5"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-sm text-muted-foreground leading-snug group-hover:text-foreground transition-colors">
+            I agree to the{" "}
+            <Link
+              href="/terms"
+              target="_blank"
+              className="text-foreground font-medium underline underline-offset-2 hover:opacity-70 transition-opacity"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Terms &amp; Conditions
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy-policy"
+              target="_blank"
+              className="text-foreground font-medium underline underline-offset-2 hover:opacity-70 transition-opacity"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Privacy Policy
+            </Link>
+          </span>
+        </label>
+
         <button
           onClick={handleBuy}
-          disabled={loading || loadingSub}
+          disabled={loading || loadingSub || !termsAccepted}
           className="flex justify-center flex-row gap-2 items-center w-full py-4 bg-primary text-primary-foreground font-medium rounded-xl btn-hover btn-active transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
         >
           {loading ? (

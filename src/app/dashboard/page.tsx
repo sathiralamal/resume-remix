@@ -209,7 +209,17 @@ export default function Dashboard() {
               className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-2 px-3 py-1.5 rounded-full hover:bg-muted"
               title="View Profile"
             >
-              <User className="w-4 h-4" />
+              {session.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || "User avatar"}
+                  className="w-5 h-5 rounded-full object-cover border border-border"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
               {session.user?.name || "Guest"}
             </Link>
 

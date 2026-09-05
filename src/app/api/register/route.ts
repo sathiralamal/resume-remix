@@ -14,14 +14,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { name, email, password } = registerSchema.parse(body);
+    const normalizedEmail = email.toLowerCase().trim();
 
     // Check if user already exists
-    const existingUser = await findUserByEmail(email);
+    const existingUser = await findUserByEmail(normalizedEmail);
 
     if (existingUser) {
       return NextResponse.json(
         { message: "User with this email already exists" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -32,9 +33,14 @@ export async function POST(req: Request) {
     const now = new Date();
     const userRef = await db.collection("users").add({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
+      provider: "credentials",
+      status: "active",
+      googleId: null,
+      profileImage: null,
       createdAt: now,
+      lastLoginAt: null,
       updatedAt: now,
       remixCount: 0,
       isSubscribed: false,
@@ -49,22 +55,22 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         message: "User registered successfully",
-        user: { id: userRef.id, name, email },
+        user: { id: userRef.id, name, email: normalizedEmail },
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { message: (error as any).errors[0]?.message ?? "Validation failed" },
-        { status: 400 }
+        { message: error.issues[0]?.message ?? "Validation failed" },
+        { status: 400 },
       );
     }
 
     console.error("Registration error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -5,9 +5,12 @@ export interface UserDoc {
   email: string;
   password?: string;
   name: string | null;
+  profileImage?: string | null;
   provider?: string;
-  googleId?: string;
+  googleId?: string | null;
+  status?: string;
   createdAt: Date;
+  lastLoginAt?: Date | null;
   updatedAt: Date;
   remixCount: number;
   isSubscribed: boolean;
@@ -20,13 +23,15 @@ export interface UserDoc {
 }
 
 /**
- * Find a user by their email address.
+ * Find a user by their stable Google provider ID (sub / googleId).
  * Returns null if no user is found.
  */
-export async function findUserByEmail(email: string): Promise<UserDoc | null> {
+export async function findUserByGoogleId(
+  googleId: string,
+): Promise<UserDoc | null> {
   const snap = await db
     .collection("users")
-    .where("email", "==", email)
+    .where("googleId", "==", googleId)
     .limit(1)
     .get();
 
@@ -34,6 +39,40 @@ export async function findUserByEmail(email: string): Promise<UserDoc | null> {
 
   const doc = snap.docs[0];
   return { id: doc.id, ...doc.data() } as UserDoc;
+}
+
+/**
+ * Find a user by their email address.
+ * Normalizes email to lowercase and falls back to raw lookup for legacy records.
+ * Returns null if no user is found.
+ */
+export async function findUserByEmail(email: string): Promise<UserDoc | null> {
+  const normalized = email.toLowerCase().trim();
+  const snap = await db
+    .collection("users")
+    .where("email", "==", normalized)
+    .limit(1)
+    .get();
+
+  if (!snap.empty) {
+    const doc = snap.docs[0];
+    return { id: doc.id, ...doc.data() } as UserDoc;
+  }
+
+  // Fallback check for case-sensitive legacy entries
+  if (normalized !== email) {
+    const fallbackSnap = await db
+      .collection("users")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
+    if (!fallbackSnap.empty) {
+      const doc = fallbackSnap.docs[0];
+      return { id: doc.id, ...doc.data() } as UserDoc;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -47,40 +86,103 @@ export async function findUserById(id: string): Promise<UserDoc | null> {
 }
 
 /**
- * Find or create a user from a Google OAuth sign-in.
- * If the email already exists (credentials account), links the Google ID.
- * Otherwise creates a new user document.
+ * Update the user's last login timestamp.
+ */
+export async function updateUserLastLogin(id: string): Promise<void> {
+  const now = new Date();
+  await db.collection("users").doc(id).update({
+    lastLoginAt: now,
+    updatedAt: now,
+  });
+}
+
+/**
+ * Authenticates or provisions a Google user in Firestore.
+ * 1. Checks Firestore using stable Google ID (sub).
+ * 2. If not found, checks Firestore by verified email.
+ * 3. Validates account status (active).
+ * 4. Updates lastLoginAt and identity metadata for existing users.
+ * 5. Auto-provisions a new user record if no matching account exists.
  */
 export async function findOrCreateGoogleUser({
   email,
   name,
   googleId,
+  profileImage,
 }: {
   email: string;
   name: string | null;
   googleId: string;
+  profileImage?: string | null;
 }): Promise<UserDoc> {
-  const existing = await findUserByEmail(email);
+  const now = new Date();
 
-  if (existing) {
-    // Link Google ID if not already set
-    if (!existing.googleId) {
-      await db.collection("users").doc(existing.id).update({
-        googleId,
-        provider: existing.provider ?? "google",
-        updatedAt: new Date(),
-      });
+  // 1. Look up by stable Google provider ID
+  const userByGoogleId = await findUserByGoogleId(googleId);
+
+  if (userByGoogleId) {
+    // Validate account status
+    if (userByGoogleId.status && userByGoogleId.status !== "active") {
+      throw new Error("ACCOUNT_INACTIVE");
     }
-    return { ...existing, googleId };
+
+    const updates: Record<string, unknown> = {
+      lastLoginAt: now,
+      updatedAt: now,
+    };
+
+    if (profileImage && userByGoogleId.profileImage !== profileImage) {
+      updates.profileImage = profileImage;
+    }
+    if (name && !userByGoogleId.name) {
+      updates.name = name;
+    }
+
+    await db.collection("users").doc(userByGoogleId.id).update(updates);
+    return { ...userByGoogleId, ...updates } as UserDoc;
   }
 
-  const now = new Date();
-  const ref = await db.collection("users").add({
-    name,
-    email,
+  // 2. Fall back to look up by verified email
+  const userByEmail = await findUserByEmail(email);
+
+  if (userByEmail) {
+    // Validate account status
+    if (userByEmail.status && userByEmail.status !== "active") {
+      throw new Error("ACCOUNT_INACTIVE");
+    }
+
+    // Link Google ID to the existing account
+    const updates: Record<string, unknown> = {
+      googleId,
+      lastLoginAt: now,
+      updatedAt: now,
+    };
+
+    if (!userByEmail.provider) {
+      updates.provider = "google";
+    }
+    if (profileImage && !userByEmail.profileImage) {
+      updates.profileImage = profileImage;
+    }
+    if (name && !userByEmail.name) {
+      updates.name = name;
+    }
+
+    await db.collection("users").doc(userByEmail.id).update(updates);
+    return { ...userByEmail, ...updates } as UserDoc;
+  }
+
+  // 3. Auto-provision new user record
+  const normalizedEmail = email.toLowerCase().trim();
+  const newUserData = {
+    name: name ?? null,
+    email: normalizedEmail,
     googleId,
+    profileImage: profileImage ?? null,
     provider: "google",
+    status: "active",
     createdAt: now,
+    lastLoginAt: now,
     updatedAt: now,
     remixCount: 0,
     isSubscribed: false,
@@ -90,23 +192,11 @@ export async function findOrCreateGoogleUser({
     subscriptionPlan: null,
     currentPeriodEnd: null,
     cancelAtPeriodEnd: false,
-  });
+  };
 
+  const ref = await db.collection("users").add(newUserData);
   return {
     id: ref.id,
-    name,
-    email,
-    googleId,
-    provider: "google",
-    createdAt: now,
-    updatedAt: now,
-    remixCount: 0,
-    isSubscribed: false,
-    lemonSqueezyCustomerId: null,
-    subscriptionId: null,
-    subscriptionStatus: null,
-    subscriptionPlan: null,
-    currentPeriodEnd: null,
-    cancelAtPeriodEnd: false,
+    ...newUserData,
   };
 }

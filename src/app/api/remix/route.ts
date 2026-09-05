@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const guardrail = checkGuardrails(parsed);
     if (!guardrail.ok) {
       console.warn(
-        `[Guardrail] Blocked: code=${guardrail.code} field=${guardrail.field} user=${session.user.email}`
+        `[Guardrail] Blocked: code=${guardrail.code} field=${guardrail.field} user=${session.user.email}`,
       );
       return NextResponse.json(
         {
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     // ── Model-level REFUSED response (second line of defense) ───────────────
     if ("error" in result && result.error === "REFUSED") {
       console.warn(
-        `[Guardrail] Model refused: user=${session.user.email} reason=${result.reason}`
+        `[Guardrail] Model refused: user=${session.user.email} reason=${result.reason}`,
       );
       return NextResponse.json(
         {
@@ -129,20 +129,18 @@ export async function POST(req: Request) {
       });
 
     return NextResponse.json({ success: true, data: result });
-  } catch (err: any) {
-    const status = err.name === "ZodError" ? 400 : 500;
   } catch (err: unknown) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: err.issues[0]?.message ?? "Validation failed" },
+        {
+          success: false,
+          error: err.issues[0]?.message ?? "Validation failed",
+        },
         { status: 400 },
       );
     }
-    const message =
-      err instanceof Error ? err.message : "Something went wrong";
+    const message = err instanceof Error ? err.message : "Something went wrong";
     return NextResponse.json(
-      { success: false, error: err.message ?? "Something went wrong" },
-      { status },
       { success: false, error: message },
       { status: 500 },
     );

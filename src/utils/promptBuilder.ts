@@ -1,7 +1,10 @@
 import { RemixInput } from "../types";
 
-export function buildPrompt({ experience, skills, jobDescription }: RemixInput): string {
-  return `You are an expert resume writer and career coach.
+export function buildPrompt({
+  experience,
+  skills,
+  jobDescription,
+}: RemixInput): string {
   return `You are Resume Remxi, an expert resume writer and career coach.
 
 A candidate wants to tailor their resume for a specific job opening.

@@ -33,8 +33,7 @@ export default function ContactPage() {
               <a
                 href="mailto:arcadeaceace@gmail.com"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                arcadeaceace@gmail.com
+              >arcadeaceace@gmail.com
               </a>
             </div>
           </div>

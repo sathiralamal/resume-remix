@@ -209,7 +209,17 @@ export default function Dashboard() {
               className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-2 px-3 py-1.5 rounded-full hover:bg-muted"
               title="View Profile"
             >
-              <User className="w-4 h-4" />
+              {session.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={session.user.image}
+                  alt={session.user.name || "User avatar"}
+                  className="w-5 h-5 rounded-full object-cover border border-border"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <User className="w-4 h-4" />
+              )}
               {session.user?.name || "Guest"}
             </Link>
 
@@ -267,15 +277,44 @@ export default function Dashboard() {
           </div>
         )}
 
-        {error && error !== "LIMIT_REACHED" && (
-          <div className="p-4 bg-red-50 border border-red-100 text-red-800 rounded-xl flex items-start gap-3 mt-8 animate-fade-in-up">
-            ⚠️
-            <div>
-              <div className="font-semibold mb-1">Error During Processing</div>
-              <div className="text-sm opacity-90">{error}</div>
-            </div>
-          </div>
-        )}
+        {error &&
+          error !== "LIMIT_REACHED" &&
+          !error.includes("LIMIT_REACHED") &&
+          (() => {
+            const isGuardrail = error.startsWith("GUARDRAIL_VIOLATION:");
+            const displayMessage = isGuardrail
+              ? error.replace("GUARDRAIL_VIOLATION:", "").trim()
+              : error;
+
+            return (
+              <div
+                className={`p-4 border rounded-xl flex items-start gap-3 mt-8 animate-fade-in-up ${
+                  isGuardrail
+                    ? "bg-amber-50 border-amber-200 text-amber-900"
+                    : "bg-red-50 border-red-100 text-red-800"
+                }`}
+              >
+                <span className="text-xl leading-none mt-0.5">
+                  {isGuardrail ? "🛡️" : "⚠️"}
+                </span>
+                <div>
+                  <div className="font-semibold mb-1">
+                    {isGuardrail
+                      ? "Input Not Accepted"
+                      : "Error During Processing"}
+                  </div>
+                  <div className="text-sm opacity-90">{displayMessage}</div>
+                  {isGuardrail && (
+                    <div className="text-xs mt-2 opacity-70">
+                      This tool is designed exclusively for resume tailoring.
+                      Please enter your real work experience, skills, and a
+                      genuine job description.
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
         {result && <RemixResult data={result} />}
       </main>

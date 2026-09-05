@@ -10,7 +10,9 @@ export default function UpgradePage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(
+    null,
+  );
   const [loadingSub, setLoadingSub] = useState(true);
 
   // Fetch current subscription status
@@ -55,17 +57,18 @@ export default function UpgradePage() {
     }
   };
 
+
   // Already subscribed view
   if (!loadingSub && subscription?.isSubscribed) {
     return (
       <div className="min-h-screen bg-transparent relative p-6 overflow-hidden flex items-center justify-center">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
-        
+
         <div className="relative z-10 max-w-lg w-full glass-panel rounded-3xl p-10 text-center animate-fade-in-up soft-shadow">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary mb-8 shadow-sm">
             <Zap className="h-10 w-10 fill-primary" />
           </div>
-          
+
           <h2 className="text-3xl font-semibold mb-3 tracking-tight">
             Pro Active
           </h2>
@@ -78,15 +81,21 @@ export default function UpgradePage() {
               <p>
                 Subscription cancelled. Access remains until{" "}
                 {subscription.currentPeriodEnd && (
-                  <strong>{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</strong>
-                )}.
+                  <strong>
+                    {new Date(
+                      subscription.currentPeriodEnd,
+                    ).toLocaleDateString()}
+                  </strong>
+                )}
+                .
               </p>
             </div>
           )}
 
           {subscription.currentPeriodEnd && !subscription.cancelAtPeriodEnd && (
             <div className="mb-8 text-sm text-muted-foreground">
-              Renews on {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+              Renews on{" "}
+              {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
             </div>
           )}
 
@@ -123,21 +132,30 @@ export default function UpgradePage() {
         <div className="space-y-4 mb-10">
           <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
             <Check className="h-5 w-5 text-primary mr-4" />
-            <p className="text-[15px] font-medium text-foreground">Unlimited Tailoring Sessions</p>
+            <p className="text-[15px] font-medium text-foreground">
+              Unlimited Tailoring Sessions
+            </p>
           </div>
           <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
             <Check className="h-5 w-5 text-primary mr-4" />
-            <p className="text-[15px] font-medium text-foreground">Advanced AI Processing</p>
+            <p className="text-[15px] font-medium text-foreground">
+              Advanced AI Processing
+            </p>
           </div>
           <div className="flex items-center p-4 rounded-xl bg-background/50 border border-border">
             <Check className="h-5 w-5 text-primary mr-4" />
-            <p className="text-[15px] font-medium text-foreground">Priority Bandwidth</p>
+            <p className="text-[15px] font-medium text-foreground">
+              Priority Bandwidth
+            </p>
           </div>
         </div>
 
         <div className="mb-10 text-center">
           <div className="text-5xl font-semibold tracking-tight text-foreground">
-            $19<span className="text-xl text-muted-foreground font-normal">/mo</span>
+            $12
+            <span className="text-xl text-muted-foreground font-normal">
+              /one time payment
+            </span>
           </div>
         </div>
 
@@ -163,7 +181,10 @@ export default function UpgradePage() {
         </button>
 
         <div className="text-center mt-6">
-          <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
+          <Link
+            href="/dashboard"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+          >
             Cancel and return
           </Link>
         </div>

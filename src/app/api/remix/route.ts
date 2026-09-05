@@ -5,6 +5,7 @@ import { callAI } from "@/config/aiProviders";
 import { db } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { findUserByEmail } from "@/lib/firestore-helpers";
+import { checkGuardrails } from "@/lib/aiGuardrails";
 import { FieldValue } from "firebase-admin/firestore";
 
 const schema = z.object({
@@ -25,6 +26,24 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const parsed = schema.parse(body);
+
+    // ── AI Guardrail Check ───────────────────────────────────────────────────
+    const guardrail = checkGuardrails(parsed);
+    if (!guardrail.ok) {
+      console.warn(
+        `[Guardrail] Blocked: code=${guardrail.code} field=${guardrail.field} user=${session.user.email}`
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: guardrail.reason,
+          guardrailViolation: true,
+          code: guardrail.code,
+        },
+        { status: 422 },
+      );
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     // Limit Check
     const user = await findUserByEmail(session.user.email);
@@ -70,11 +89,15 @@ export async function POST(req: Request) {
         const fixed = content
           .replace(/\r?\n/g, "\\n") // convert real line breaks → \n
           .replace(/\t/g, "\\t"); // optional: fix tabs too
+          .replace(/\r?\n/g, "\\n")
+          .replace(/\t/g, "\\t");
         return `: "${fixed}"`;
       })
+      .trim();
 
       .trim();
     let result;
+    let result: Record<string, unknown>;
     try {
       result = JSON.parse(clean);
     } catch (jsonError) {
@@ -82,12 +105,50 @@ export async function POST(req: Request) {
       throw new Error("AI returned invalid JSON");
     }
 
+    // ── Model-level REFUSED response (second line of defense) ───────────────
+    if ("error" in result && result.error === "REFUSED") {
+      console.warn(
+        `[Guardrail] Model refused: user=${session.user.email} reason=${result.reason}`
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Your input contains content that isn't suitable for resume tailoring. Please enter genuine work experience, skills, and a real job description.",
+          guardrailViolation: true,
+          code: "MODEL_REFUSED",
+        },
+        { status: 422 },
+      );
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    // Only increment usage after a successful, non-refused AI response
+    await db
+      .collection("users")
+      .doc(user.id)
+      .update({
+        remixCount: FieldValue.increment(1),
+        updatedAt: new Date(),
+      });
+
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
     const status = err.name === "ZodError" ? 400 : 500;
+  } catch (err: unknown) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: err.issues[0]?.message ?? "Validation failed" },
+        { status: 400 },
+      );
+    }
+    const message =
+      err instanceof Error ? err.message : "Something went wrong";
     return NextResponse.json(
       { success: false, error: err.message ?? "Something went wrong" },
       { status },
+      { success: false, error: message },
+      { status: 500 },
     );
   }
 }

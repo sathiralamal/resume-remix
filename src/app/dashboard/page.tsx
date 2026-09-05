@@ -283,9 +283,41 @@ export default function Dashboard() {
             <div>
               <div className="font-semibold mb-1">Error During Processing</div>
               <div className="text-sm opacity-90">{error}</div>
+        {error && error !== "LIMIT_REACHED" && !error.includes("LIMIT_REACHED") && (() => {
+          const isGuardrail = error.startsWith("GUARDRAIL_VIOLATION:");
+          const displayMessage = isGuardrail
+            ? error.replace("GUARDRAIL_VIOLATION:", "").trim()
+            : error;
+
+          return (
+            <div
+              className={`p-4 border rounded-xl flex items-start gap-3 mt-8 animate-fade-in-up ${
+                isGuardrail
+                  ? "bg-amber-50 border-amber-200 text-amber-900"
+                  : "bg-red-50 border-red-100 text-red-800"
+              }`}
+            >
+              <span className="text-xl leading-none mt-0.5">
+                {isGuardrail ? "🛡️" : "⚠️"}
+              </span>
+              <div>
+                <div className="font-semibold mb-1">
+                  {isGuardrail ? "Input Not Accepted" : "Error During Processing"}
+                </div>
+                <div className="text-sm opacity-90">{displayMessage}</div>
+                {isGuardrail && (
+                  <div className="text-xs mt-2 opacity-70">
+                    This tool is designed exclusively for resume tailoring. Please
+                    enter your real work experience, skills, and a genuine job
+                    description.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
+          );
+        })()}
 
         {result && <RemixResult data={result} />}
       </main>

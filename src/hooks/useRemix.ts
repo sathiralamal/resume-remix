@@ -30,6 +30,17 @@ export function useRemix() {
     } catch (e: any) {
       setError(e.message);
       // Return error for caller if needed (requires changing signature, but for now state is enough triggers useEffect)
+      if (!json.success) {
+        // Propagate guardrail violation code so dashboard can show specific UI
+        if (json.guardrailViolation) {
+          throw new Error(`GUARDRAIL_VIOLATION:${json.error}`);
+        }
+        throw new Error(json.error ?? "Something went wrong");
+      }
+
+      setResult(json.data as RemixResult);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setLoading(false);
     }

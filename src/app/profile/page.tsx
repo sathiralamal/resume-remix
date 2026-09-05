@@ -11,8 +11,10 @@ import type { SubscriptionStatus } from "@/types";
 
 export default function Profile() {
   const { data: session, status } = useSession();
-  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
-  
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(
+    null,
+  );
+
   // Password state
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -45,7 +47,7 @@ export default function Profile() {
       setPasswordError("New passwords do not match.");
       return;
     }
-    
+
     if (newPassword.length < 6) {
       setPasswordError("New password must be at least 6 characters.");
       return;
@@ -70,7 +72,7 @@ export default function Profile() {
         setNewPassword("");
         setConfirmPassword("");
       }
-    } catch (err) {
+    } catch {
       setPasswordError("An unexpected error occurred.");
     } finally {
       setIsUpdatingPassword(false);
@@ -87,40 +89,60 @@ export default function Profile() {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border transition-colors">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-muted">
+            <Link
+              href="/dashboard"
+              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-muted"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <h1 className="text-xl font-semibold tracking-tight">Profile Settings</h1>
+            <h1 className="text-xl font-semibold tracking-tight">
+              Profile Settings
+            </h1>
           </div>
 
           <div className="flex items-center gap-4">
-             <ThemeToggle />
-             <button 
-               onClick={() => signOut({ callbackUrl: "/login" })}
-               className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors flex items-center gap-2"
-               title="Sign out"
-             >
-               <LogOut className="w-4 h-4" />
-               <span className="text-sm font-medium hidden sm:inline-block">Sign out</span>
-             </button>
+            <ThemeToggle />
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors flex items-center gap-2"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm font-medium hidden sm:inline-block">
+                Sign out
+              </span>
+            </button>
           </div>
         </div>
       </header>
 
       <main className="flex-1 max-w-2xl mx-auto px-6 py-12 w-full space-y-10">
-        
         {/* User Details Section */}
         <section className="bg-card border border-border shadow-sm rounded-2xl p-6 sm:p-8 space-y-6">
-          <div className="flex items-center gap-3 border-b border-border pb-4">
-            <div className="p-3 bg-primary/10 text-primary rounded-full">
-              <User className="w-6 h-6" />
-            </div>
+          <div className="flex items-center gap-4 border-b border-border pb-4">
+            {session.user?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={session.user.image}
+                alt={session.user.name || "User avatar"}
+                className="w-12 h-12 rounded-full object-cover border border-border"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="p-3 bg-primary/10 text-primary rounded-full">
+                <User className="w-6 h-6" />
+              </div>
+            )}
             <div>
-              <h2 className="text-lg font-medium text-card-foreground">Account Details</h2>
-              <p className="text-sm text-muted-foreground">Your basic profile information</p>
+              <h2 className="text-lg font-medium text-card-foreground">
+                Account Details
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Your basic profile information
+              </p>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-1">
@@ -130,7 +152,7 @@ export default function Profile() {
                 {session.user?.name || "Guest User"}
               </div>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-1">
                 <Mail className="w-4 h-4" /> Email
@@ -145,12 +167,18 @@ export default function Profile() {
         {/* Subscription Section */}
         <section className="bg-card border border-border shadow-sm rounded-2xl p-6 sm:p-8 space-y-6">
           <div className="flex items-center gap-3 border-b border-border pb-4">
-            <div className={`p-3 rounded-full ${subscription?.isSubscribed ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+            <div
+              className={`p-3 rounded-full ${subscription?.isSubscribed ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+            >
               <Zap className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-medium text-card-foreground">Subscription Plan</h2>
-              <p className="text-sm text-muted-foreground">Manage your billing and tier</p>
+              <h2 className="text-lg font-medium text-card-foreground">
+                Subscription Plan
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Manage your billing and tier
+              </p>
             </div>
           </div>
 
@@ -159,7 +187,9 @@ export default function Profile() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-semibold text-lg text-foreground">
-                    {subscription?.isSubscribed ? "Pro Plan Active" : "Free Plan"}
+                    {subscription?.isSubscribed
+                      ? "Pro Plan Active"
+                      : "Free Plan"}
                   </span>
                   {subscription?.isSubscribed && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary text-primary-foreground">
@@ -168,8 +198,8 @@ export default function Profile() {
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {subscription?.isSubscribed 
-                    ? "You have unlimited remixes and premium features." 
+                  {subscription?.isSubscribed
+                    ? "You have unlimited remixes and premium features."
                     : `You have ${subscription?.remainingFreeRemixes} of ${subscription?.freeLimit} free remixes remaining.`}
                 </p>
               </div>
@@ -193,8 +223,12 @@ export default function Profile() {
               <Lock className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-medium text-card-foreground">Security</h2>
-              <p className="text-sm text-muted-foreground">Update your password</p>
+              <h2 className="text-lg font-medium text-card-foreground">
+                Security
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Update your password
+              </p>
             </div>
           </div>
 
@@ -212,7 +246,9 @@ export default function Profile() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">Current Password</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">
+                  Current Password
+                </label>
                 <input
                   type="password"
                   required
@@ -224,7 +260,9 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">New Password</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">
+                  New Password
+                </label>
                 <input
                   type="password"
                   required
@@ -236,7 +274,9 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">Confirm New Password</label>
+                <label className="block text-sm font-medium text-foreground mb-1.5 ml-1">
+                  Confirm New Password
+                </label>
                 <input
                   type="password"
                   required
@@ -257,7 +297,6 @@ export default function Profile() {
             </button>
           </form>
         </section>
-
       </main>
     </div>
   );
